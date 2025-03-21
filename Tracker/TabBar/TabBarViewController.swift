@@ -20,14 +20,14 @@ private extension TabBarViewController {
     func setupControllers() {
         let trackerView = UINavigationController(rootViewController: TrackerViewController())
         trackerView.tabBarItem = UITabBarItem(
-            title: "Tрекеры",
+            title: Constants.UIString.trackers,
             image: .record,
             tag: 0
         )
-
+        
         let statisticView = StatisticViewController()
         statisticView.tabBarItem = UITabBarItem(
-            title: "Статистика",
+            title: Constants.UIString.statistic,
             image: .statistic,
             tag: 1
         )
