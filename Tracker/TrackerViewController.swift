@@ -37,6 +37,9 @@ final class TrackerViewController: UIViewController {
         label.textAlignment = .center
         return label
     }()
+    
+    private var categories: [TrackerCategory] = []
+    private var completedTrackers: [TrackerRecord] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
