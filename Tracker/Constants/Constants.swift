@@ -11,10 +11,6 @@ enum Constants {
         static let emptyStateLabel = "Что будем отслеживать?"
         static let trackers = "Трекеры"
         static let statistic = "Статистика"
-    }
-    
-    enum Fonts {
-        static let medium = UIFont.systemFont(ofSize: 12, weight: .medium)
-        static let title = UIFont.systemFont(ofSize: 34, weight: .bold)
+        static let search = "Поиск"
     }
 }
