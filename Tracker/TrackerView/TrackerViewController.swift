@@ -30,7 +30,7 @@ final class TrackerViewController: UIViewController {
         let label = UILabel()
         label.text = Constants.UIString.emptyStateLabel
         label.numberOfLines = 0
-        label.font = .medium
+        label.font = .little
         label.textAlignment = .center
         return label
     }()
@@ -47,6 +47,8 @@ final class TrackerViewController: UIViewController {
             visibleCategories.isEmpty ? hideEmptyStateView(isHidden: false) : hideEmptyStateView(isHidden: true)
         }
     }
+    
+    private var currentDate = Date()
     private var categories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
 
@@ -95,7 +97,7 @@ private extension TrackerViewController {
         
         let newTracker = Tracker(
             id: UUID(),
-            name: "I Like Drink Beer",
+            name: "I Like Drinking Beer",
             color: .typeSalmon,
             emoji: "🥰",
             schedule: Set(Tracker.Week.allCases)
@@ -125,11 +127,16 @@ private extension TrackerViewController {
         setupNavigationBar()
         setupCollectionView()
         setupConstraints()
+        
+        let creating = CreatingTrackerViewController()
+        let navigationController = UINavigationController(rootViewController: creating)
+        present(navigationController, animated: true)
     }
     
     func setupNavigationBar() {
         navigationItem.title = Constants.UIString.trackers
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.toolbar.backgroundColor = .ypBackground
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: .plus,

@@ -10,6 +10,7 @@ import UIKit
 final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTabBar()
         setupControllers()
         addBorder()
     }
@@ -17,6 +18,10 @@ final class TabBarViewController: UITabBarController {
 
 // MARK: - Setup Methods
 private extension TabBarViewController {
+    func setupTabBar(){
+        tabBarController?.tabBar.backgroundColor = .ypBackground
+    }
+    
     func setupControllers() {
         let trackerView = UINavigationController(rootViewController: TrackerViewController())
         trackerView.tabBarItem = UITabBarItem(

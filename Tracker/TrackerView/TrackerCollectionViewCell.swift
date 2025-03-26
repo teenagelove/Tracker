@@ -22,7 +22,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private lazy var emojiLabel: UILabel = {
         let label = UILabel()
-        label.font = .medium
+        label.font = .little
         label.text = "❤️"
         label.textAlignment = .center
         label.layer.cornerRadius = 12
@@ -33,7 +33,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private lazy var cardTextLabel: UILabel = {
         let label = UILabel()
-        label.font = .medium
+        label.font = .little
         label.numberOfLines = 0
         label.text = "Попить пивка"
         return label
@@ -41,7 +41,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private lazy var recordLabel: UILabel = {
         let label = UILabel()
-        label.font = .medium
+        label.font = .little
         label.text = "1 день"
         return label
     }()
