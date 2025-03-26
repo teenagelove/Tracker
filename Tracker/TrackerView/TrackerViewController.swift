@@ -81,20 +81,33 @@ private extension TrackerViewController {
     }
     
     @objc func addTracker() {
-        let track = Tracker(
+        if visibleCategories.isEmpty {
+            let newCategory = TrackerCategory(
+                header: "Drinking Beer",
+                trackers: []
+            )
+            visibleCategories.append(newCategory)
+            
+            collectionView.performBatchUpdates {
+                collectionView.insertSections(IndexSet(integer: 0))
+            }
+        }
+        
+        let newTracker = Tracker(
             id: UUID(),
-            name: "New BBEERR",
+            name: "I Like Drink Beer",
             color: .typeSalmon,
             emoji: "🥰",
             schedule: Set(Tracker.Week.allCases)
         )
         
-        let category = visibleCategories[0]
-        let updatedTrackers = category.trackers + [track]
-        let updatedCategory = TrackerCategory(header: category.header, trackers: updatedTrackers)
-
-        visibleCategories[0] = updatedCategory
-
+        var category = visibleCategories[0]
+        var updatedTrackers = category.trackers
+        updatedTrackers.append(newTracker)
+        
+        category = TrackerCategory(header: category.header, trackers: updatedTrackers)
+        visibleCategories[0] = category
+        
         let newIndexPath = IndexPath(row: updatedTrackers.count - 1, section: 0)
         
         collectionView.performBatchUpdates {
@@ -145,17 +158,17 @@ private extension TrackerViewController {
             withReuseIdentifier: TrackerHeaderView.reuseIdentifier
             )
             
-        let car = TrackerCategory(
-            header: "Домашний уют",
-            trackers: [Tracker(
-                id: UUID(),
-                name: "DrinkDrinkDrink",
-                color: .ypBlue,
-                emoji: "❤️",
-                schedule: Set(Tracker.Week.allCases)
-            )]
-        )
-        visibleCategories.append(car)
+//        let car = TrackerCategory(
+//            header: "Домашний уют",
+//            trackers: [Tracker(
+//                id: UUID(),
+//                name: "DrinkDrinkDrink",
+//                color: .ypBlue,
+//                emoji: "❤️",
+//                schedule: Set(Tracker.Week.allCases)
+//            )]
+//        )
+//        visibleCategories.append(car)
         
     }
 
