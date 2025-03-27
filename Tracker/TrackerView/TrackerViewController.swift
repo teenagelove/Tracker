@@ -153,7 +153,7 @@ private extension TrackerViewController {
             target: self,
             action: #selector(addTracker)
         )
-        navigationItem.leftBarButtonItem?.tintColor = .ypBlack
+        navigationItem.leftBarButtonItem?.tintColor = .ypAccent
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         

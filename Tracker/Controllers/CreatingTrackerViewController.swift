@@ -15,7 +15,7 @@ final class CreatingTrackerViewController: UIViewController {
         button.titleLabel?.textAlignment = .center
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypAccent
         button.titleLabel?.font = .medium
         button.titleLabel?.tintColor = .ypWhite
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -29,7 +29,7 @@ final class CreatingTrackerViewController: UIViewController {
         button.titleLabel?.textAlignment = .center
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypAccent
         button.titleLabel?.font = .medium
         button.titleLabel?.tintColor = .ypWhite
         button.translatesAutoresizingMaskIntoConstraints = false
