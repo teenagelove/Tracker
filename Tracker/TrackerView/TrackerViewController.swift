@@ -11,8 +11,6 @@ final class TrackerViewController: UIViewController {
     // MARK: - UI Components
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    private let emptyStateView = UIView()
-    
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
@@ -23,6 +21,7 @@ final class TrackerViewController: UIViewController {
     private lazy var emptyStateImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = .emptyStateStub
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -32,7 +31,17 @@ final class TrackerViewController: UIViewController {
         label.numberOfLines = 0
         label.font = .little
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    private lazy var emptyStateStackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [emptyStateImageView, emptyStateLabel])
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.alignment = .center
+        stack.spacing = 8
+        return stack
     }()
     
     // MARK: - Properties
@@ -122,8 +131,8 @@ private extension TrackerViewController {
 private extension TrackerViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
-        view.addSubviews(collectionView, emptyStateView)
-        emptyStateView.addSubviews(emptyStateImageView, emptyStateLabel)
+        view.addSubviews(collectionView, emptyStateStackView)
+        //emptyStateView.addSubviews(emptyStateImageView, emptyStateLabel)
         setupNavigationBar()
         setupCollectionView()
         setupConstraints()
@@ -155,6 +164,7 @@ private extension TrackerViewController {
     func setupCollectionView() {
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.backgroundColor = .ypBackground
         collectionView.register(
             TrackerCollectionViewCell.self,
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier
@@ -164,35 +174,15 @@ private extension TrackerViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TrackerHeaderView.reuseIdentifier
             )
-            
-//        let car = TrackerCategory(
-//            header: "Домашний уют",
-//            trackers: [Tracker(
-//                id: UUID(),
-//                name: "DrinkDrinkDrink",
-//                color: .ypBlue,
-//                emoji: "❤️",
-//                schedule: Set(Tracker.Week.allCases)
-//            )]
-//        )
-//        visibleCategories.append(car)
-        
     }
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            emptyStateView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyStateStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyStateStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
-            emptyStateImageView.topAnchor.constraint(equalTo: emptyStateView.topAnchor),
-            emptyStateImageView.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
             emptyStateImageView.heightAnchor.constraint(equalToConstant: 80),
-            emptyStateImageView.widthAnchor.constraint(equalTo: emptyStateImageView.heightAnchor),
-            
-            emptyStateLabel.topAnchor.constraint(equalTo: emptyStateImageView.bottomAnchor, constant: 8),
-            emptyStateLabel.leadingAnchor.constraint(equalTo: emptyStateView.leadingAnchor),
-            emptyStateLabel.trailingAnchor.constraint(equalTo: emptyStateView.trailingAnchor),
-            emptyStateLabel.bottomAnchor.constraint(equalTo: emptyStateView.bottomAnchor),
+            emptyStateImageView.widthAnchor.constraint(equalToConstant: 80),
             
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -204,7 +194,7 @@ private extension TrackerViewController {
 
 private extension TrackerViewController {
     func hideEmptyStateView(isHidden: Bool) {
-        emptyStateView.isHidden = isHidden
+        emptyStateStackView.isHidden = isHidden
     }
 }
 
