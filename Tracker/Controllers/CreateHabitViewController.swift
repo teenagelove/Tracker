@@ -12,13 +12,10 @@ final class CreateHabitViewController: UIViewController {
     private lazy var habitTextField: UITextField = {
         let textField = UITextField()
         textField.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        textField.placeholder = Constants.UIString.trackerPlaceholder
         textField.textAlignment = .left
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.firstLineHeadIndent = 16
-        textField.attributedPlaceholder = NSAttributedString(
-            string: Constants.UIString.trackerPlaceholder,
-            attributes: [.paragraphStyle: paragraphStyle]
-        )
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
+        textField.leftViewMode = .always
         textField.layer.cornerRadius = 16
         textField.layer.masksToBounds = true
         return textField
