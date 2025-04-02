@@ -11,6 +11,7 @@ final class NewHabitOrEventViewController: UIViewController {
     // MARK: - UI Components
     private lazy var textField: UITextField = {
         let textField = UITextField()
+        textField.delegate = self
         textField.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
         textField.placeholder = Constants.UIString.trackerPlaceholder
         textField.textAlignment = .left
@@ -18,6 +19,8 @@ final class NewHabitOrEventViewController: UIViewController {
         textField.leftViewMode = .always
         textField.layer.cornerRadius = 16
         textField.layer.masksToBounds = true
+        textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -33,16 +36,61 @@ final class NewHabitOrEventViewController: UIViewController {
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        
+        tableView.backgroundColor = .ypBackground
+        tableView.isScrollEnabled = false
         return tableView
     }()
     
+    private lazy var cancelButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle(Constants.UIString.cancel, for: .normal)
+        button.titleLabel?.font = .medium
+        button.setTitleColor(.ypRed, for: .normal)
+        button.titleLabel?.textAlignment = .center
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.ypRed.cgColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(cancelButtonDidTap), for: .primaryActionTriggered)
+        return button
+    }()
+    
+    private lazy var applyButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.backgroundColor = .ypGray
+        button.setTitle(Constants.UIString.apply, for: .normal)
+        button.setTitleColor(.ypBackground, for: .normal)
+        button.titleLabel?.font = .medium
+        button.titleLabel?.textAlignment = .center
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = true
+        button.isEnabled = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(applyButtonDidTap), for: .primaryActionTriggered)
+        return button
+    }()
+    
+    private lazy var buttonsStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [cancelButton, applyButton])
+        stack.spacing = 8
+        stack.distribution = .fillEqually
+        return stack
+    }()
+    
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        return UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+    }()
+    
+    
     // MARK: - Properties
+    weak var delegate: TrackerViewControllerDelegate?
     private var isHabit: Bool
     
     // MARK: - Initializate
-    init(isHabit: Bool) {
+    init(isHabit: Bool, delegate: TrackerViewControllerDelegate) {
         self.isHabit = isHabit
+        self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -58,8 +106,27 @@ final class NewHabitOrEventViewController: UIViewController {
 }
 
 // MARK: - Actions
-extension NewHabitOrEventViewController {
-
+private extension NewHabitOrEventViewController {
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc func cancelButtonDidTap() {
+        dismiss(animated: true)
+    }
+    
+    @objc func applyButtonDidTap() {
+        let tracker = Tracker(
+            id: UUID(),
+            name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
+            color: .typeSalmon,
+            emoji: "🍺",
+            schedule: Set(Tracker.Week.allCases)
+        )
+        
+        delegate?.didReceiveNewTracker(tracker: tracker)
+        navigationController?.dismiss(animated: true)
+    }
 }
 
 // MARK: - Private Methods
@@ -78,6 +145,12 @@ private extension NewHabitOrEventViewController {
         
         return title
     }
+    
+    func updateStateApplyButton() {
+        let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        applyButton.isEnabled = !text.isEmpty
+        applyButton.backgroundColor = text.isEmpty ? .ypGray : .ypAccent
+    }
 }
 
 // MARK: - Setup Methods
@@ -85,7 +158,8 @@ private extension NewHabitOrEventViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         setupNavigationBar()
-        view.addSubviews(textField, tableView)
+        view.addSubviews(textField, tableView, buttonsStack)
+        view.addGestureRecognizer(tapGesture)
         setupConstraints()
     }
     
@@ -107,7 +181,12 @@ private extension NewHabitOrEventViewController {
             tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
             
             // TODO: Stub
-            tableView.heightAnchor.constraint(equalToConstant: 150)
+            tableView.heightAnchor.constraint(equalToConstant: 150),
+            
+            buttonsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            buttonsStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            buttonsStack.heightAnchor.constraint(equalToConstant: 60),
+            buttonsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
     }
 }
@@ -139,5 +218,17 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension NewHabitOrEventViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        updateStateApplyButton()
     }
 }

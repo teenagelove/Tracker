@@ -20,5 +20,7 @@ enum Constants {
         static let trackerPlaceholder = "Введите название трекера"
         static let category = "Категория"
         static let schedule = "Расписание"
+        static let cancel = "Отменить"
+        static let apply = "Применить"
     }
 }

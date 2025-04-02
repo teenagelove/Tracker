@@ -60,7 +60,7 @@ extension NewHabitOrEventCell {
 private extension NewHabitOrEventCell {
     func setupUI(){
         contentView.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
-        contentView.addSubviews(titleLabel, chevronImageView, subtitleLabel)
+        contentView.addSubviews(titleLabel, chevronImageView)
         setupConstraints()
     }
     

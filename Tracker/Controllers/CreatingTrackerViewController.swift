@@ -17,7 +17,7 @@ final class CreatingTrackerViewController: UIViewController {
         button.layer.masksToBounds = true
         button.backgroundColor = .ypAccent
         button.titleLabel?.font = .medium
-        button.titleLabel?.tintColor = .ypWhite
+        button.setTitleColor(.ypBackground, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(createHabitButtonTapped), for: .primaryActionTriggered)
         return button
@@ -31,7 +31,7 @@ final class CreatingTrackerViewController: UIViewController {
         button.layer.masksToBounds = true
         button.backgroundColor = .ypAccent
         button.titleLabel?.font = .medium
-        button.titleLabel?.tintColor = .ypWhite
+        button.setTitleColor(.ypBackground, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(createEventButtonTapped), for: .primaryActionTriggered)
         return button
@@ -44,6 +44,19 @@ final class CreatingTrackerViewController: UIViewController {
         stackView.spacing = 16
         return stackView
     }()
+    
+    // MARK: - Properties
+    weak var delegate: TrackerViewControllerDelegate?
+    
+    // MARK: - Initializate
+    init(delegate: TrackerViewControllerDelegate? = nil) {
+        self.delegate = delegate
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -66,7 +79,8 @@ private extension CreatingTrackerViewController {
 // MARK: - Private Methods
 private extension CreatingTrackerViewController {
     func navigateToHabitOrEvent(isHabit: Bool) {
-        let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit)
+        guard let delegate = delegate else { return }
+        let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit, delegate: delegate)
         navigationController?.pushViewController(newHabitOrEventViewController, animated: true)
     }
 }

@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol TrackerViewControllerDelegate: AnyObject {
+    func didReceiveNewTracker(tracker: Tracker)
+}
+
 final class TrackerViewController: UIViewController {
     // MARK: - UI Components
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -50,15 +54,18 @@ final class TrackerViewController: UIViewController {
         formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
+    private var categories: [TrackerCategory] = [
+        TrackerCategory(header: "Пивная", trackers: [])
+    ]
     
-    private var visibleCategories: [TrackerCategory] = [] {
+    private lazy var visibleCategories: [TrackerCategory] = categories {
         didSet {
             visibleCategories.isEmpty ? hideEmptyStateView(isHidden: false) : hideEmptyStateView(isHidden: true)
         }
     }
     
     private var currentDate = Date()
-    private var categories: [TrackerCategory] = []
+    
     private var completedTrackers: [TrackerRecord] = []
 
     override func viewDidLoad() {
@@ -71,59 +78,13 @@ final class TrackerViewController: UIViewController {
 private extension TrackerViewController {
     @objc func didPickerValueChanged(_ sender: UIDatePicker) {
         let date = dateFormatter.string(from: sender.date)
-        let car = TrackerCategory(
-            header: "Новая категория",
-            trackers: [Tracker(
-                id: UUID(),
-                name: "Hey",
-                color: .typeLilac,
-                emoji: "❤️",
-                schedule: Set(Tracker.Week.allCases)
-            )]
-        )
-        let count = visibleCategories.count
-        visibleCategories.append(car)
-        
-        collectionView.performBatchUpdates {
-            collectionView.insertSections(IndexSet(integer: visibleCategories.count - count))
-        }
-        
         print(date)
     }
     
     @objc func addTracker() {
-        if visibleCategories.isEmpty {
-            let newCategory = TrackerCategory(
-                header: "Drinking Beer",
-                trackers: []
-            )
-            visibleCategories.append(newCategory)
-            
-            collectionView.performBatchUpdates {
-                collectionView.insertSections(IndexSet(integer: 0))
-            }
-        }
-        
-        let newTracker = Tracker(
-            id: UUID(),
-            name: "I Like Drinking Beer",
-            color: .typeSalmon,
-            emoji: "🥰",
-            schedule: Set(Tracker.Week.allCases)
-        )
-        
-        var category = visibleCategories[0]
-        var updatedTrackers = category.trackers
-        updatedTrackers.append(newTracker)
-        
-        category = TrackerCategory(header: category.header, trackers: updatedTrackers)
-        visibleCategories[0] = category
-        
-        let newIndexPath = IndexPath(row: updatedTrackers.count - 1, section: 0)
-        
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [newIndexPath])
-        }
+        let creating = CreatingTrackerViewController(delegate: self)
+        let navigationController = UINavigationController(rootViewController: creating)
+        present(navigationController, animated: true)
     }
 }
 
@@ -136,10 +97,6 @@ private extension TrackerViewController {
         setupNavigationBar()
         setupCollectionView()
         setupConstraints()
-        
-        let creating = CreatingTrackerViewController()
-        let navigationController = UINavigationController(rootViewController: creating)
-        present(navigationController, animated: true)
     }
     
     func setupNavigationBar() {
@@ -255,5 +212,24 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         CGSize(width: collectionView.frame.width, height: 30)
+    }
+}
+
+// MARK: - TrackerViewControllerDelegate
+extension TrackerViewController: TrackerViewControllerDelegate {
+    func didReceiveNewTracker(tracker: Tracker) {
+        var category = categories[0]
+        var updatedTrackers = category.trackers
+        
+        updatedTrackers.append(tracker)
+        category = TrackerCategory(header: category.header, trackers: updatedTrackers)
+        categories[0] = category
+        visibleCategories = categories
+        
+        let newIndexPath = IndexPath(row: updatedTrackers.count - 1, section: 0)
+        
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: [newIndexPath])
+        }
     }
 }
