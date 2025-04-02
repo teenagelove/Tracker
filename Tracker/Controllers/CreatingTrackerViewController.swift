@@ -33,7 +33,7 @@ final class CreatingTrackerViewController: UIViewController {
         button.titleLabel?.font = .medium
         button.titleLabel?.tintColor = .ypWhite
         button.translatesAutoresizingMaskIntoConstraints = false
-//        button.addTarget(self, action: #selector(createEventButtonTapped), for: .primaryActionTriggered)
+        button.addTarget(self, action: #selector(createEventButtonTapped), for: .primaryActionTriggered)
         return button
     }()
     
@@ -53,16 +53,22 @@ final class CreatingTrackerViewController: UIViewController {
 }
 
 // MARK: - Actions
-extension CreatingTrackerViewController {
+private extension CreatingTrackerViewController {
     @objc func createHabitButtonTapped() {
-        let createHabitViewController = CreateHabitViewController()
-        navigationController?.pushViewController(createHabitViewController, animated: true)
+        navigateToHabitOrEvent(isHabit: true)
     }
     
-//    @objc func createEventButtonTapped() {
-//        let createEventViewController = CreateEventViewController()
-//        navigationController?.pushViewController(createEventViewController, animated: true)
-//    }
+    @objc func createEventButtonTapped() {
+        navigateToHabitOrEvent(isHabit: false)
+    }
+}
+
+// MARK: - Private Methods
+private extension CreatingTrackerViewController {
+    func navigateToHabitOrEvent(isHabit: Bool) {
+        let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit)
+        navigationController?.pushViewController(newHabitOrEventViewController, animated: true)
+    }
 }
 
 // MARK: - Setup Methods

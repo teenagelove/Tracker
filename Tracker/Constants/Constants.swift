@@ -18,5 +18,7 @@ enum Constants {
         static let newHabit = "Новая привычка"
         static let newEvent = "Новое нерегулярное событие"
         static let trackerPlaceholder = "Введите название трекера"
+        static let category = "Категория"
+        static let schedule = "Расписание"
     }
 }
