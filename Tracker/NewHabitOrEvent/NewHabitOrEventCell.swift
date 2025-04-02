@@ -10,12 +10,23 @@ import UIKit
 final class NewHabitOrEventCell: UITableViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
+        label.font = .regular
+        return label
+    }()
+    
+    private lazy var subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Пивная категория"
+        label.font = .regular
+        label.tintColor = .ypGray
         return label
     }()
     
     private lazy var chevronImageView: UIImageView = {
         let image = UIImageView()
         image.image = .chevron
+        image.tintColor = .ypGray
+        image.contentMode = .center
         return image
     }()
     
@@ -37,15 +48,19 @@ extension NewHabitOrEventCell {
     func setTitle(title: String) {
         titleLabel.text = title
     }
+    
+    func makeRounding() {
+        contentView.layer.masksToBounds = true
+        contentView.layer.cornerRadius = 16
+        contentView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+    }
 }
 
 // MARK: - Setup Methods
 private extension NewHabitOrEventCell {
     func setupUI(){
         contentView.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
-        contentView.layer.cornerRadius = 16
-        contentView.layer.masksToBounds = true
-        contentView.addSubviews(titleLabel, chevronImageView)
+        contentView.addSubviews(titleLabel, chevronImageView, subtitleLabel)
         setupConstraints()
     }
     
@@ -54,9 +69,10 @@ private extension NewHabitOrEventCell {
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             
-            chevronImageView.leadingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            chevronImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             chevronImageView.heightAnchor.constraint(equalToConstant: 24),
-            chevronImageView.widthAnchor.constraint(equalTo: chevronImageView.heightAnchor)
+            chevronImageView.widthAnchor.constraint(equalTo: chevronImageView.heightAnchor),
+            chevronImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
     }
 }

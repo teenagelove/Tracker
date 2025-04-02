@@ -22,10 +22,18 @@ final class NewHabitOrEventViewController: UIViewController {
     }()
     
     private lazy var tableView: UITableView = {
-        let table = UITableView()
-        table.delegate = self
-        table.dataSource = self
-        table.register(NewHabitOrEventCell.self, forCellReuseIdentifier: NewHabitOrEventCell.reuseIdentifier)
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(
+            NewHabitOrEventCell.self,
+            forCellReuseIdentifier: NewHabitOrEventCell.reuseIdentifier
+        )
+        tableView.allowsSelection = false
+        tableView.layer.cornerRadius = 16
+        tableView.layer.masksToBounds = true
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        
         return tableView
     }()
     
@@ -96,7 +104,10 @@ private extension NewHabitOrEventViewController {
             
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24)
+            tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            
+            // TODO: Stub
+            tableView.heightAnchor.constraint(equalToConstant: 150)
         ])
     }
 }
@@ -104,10 +115,6 @@ private extension NewHabitOrEventViewController {
 
 // MARK: - UITableViewDataSource
 extension NewHabitOrEventViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        isHabit ? 2 : 1
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let cell = tableView.dequeueReusableCell(withIdentifier: NewHabitOrEventCell.reuseIdentifier, for: indexPath) as? NewHabitOrEventCell
@@ -115,10 +122,22 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         
         cell.setTitle(title: getTitleFromRow(for: indexPath.row))
         
+        if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            cell.makeRounding()
+        }
+        
         return cell
     }
 }
+
 // MARK: - UITableViewDelegate
 extension NewHabitOrEventViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        isHabit ? 2 : 1
+    }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        75
+    }
 }
