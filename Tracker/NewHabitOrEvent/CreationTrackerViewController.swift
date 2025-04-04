@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CreatingTrackerViewController: UIViewController {
+final class CreationTrackerViewController: UIViewController {
     // MARK: - UI Components
     private lazy var createHabitButton: UIButton = {
         let button = UIButton(type: .system)
@@ -46,7 +46,7 @@ final class CreatingTrackerViewController: UIViewController {
     }()
     
     // MARK: - Properties
-    weak var delegate: TrackerViewControllerDelegate?
+    private weak var delegate: TrackerViewControllerDelegate?
     
     // MARK: - Initializate
     init(delegate: TrackerViewControllerDelegate? = nil) {
@@ -66,7 +66,7 @@ final class CreatingTrackerViewController: UIViewController {
 }
 
 // MARK: - Actions
-private extension CreatingTrackerViewController {
+private extension CreationTrackerViewController {
     @objc func createHabitButtonTapped() {
         navigateToHabitOrEvent(isHabit: true)
     }
@@ -77,7 +77,7 @@ private extension CreatingTrackerViewController {
 }
 
 // MARK: - Private Methods
-private extension CreatingTrackerViewController {
+private extension CreationTrackerViewController {
     func navigateToHabitOrEvent(isHabit: Bool) {
         guard let delegate = delegate else { return }
         let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit, delegate: delegate)
@@ -86,7 +86,7 @@ private extension CreatingTrackerViewController {
 }
 
 // MARK: - Setup Methods
-private extension CreatingTrackerViewController {
+private extension CreationTrackerViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         navigationItem.title = Constants.UIString.creatingTracker

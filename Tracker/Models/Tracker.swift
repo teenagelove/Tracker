@@ -15,9 +15,3 @@ struct Tracker {
     let schedule: Set<Week>
 }
 
-// MARK: - Week
-extension Tracker {
-    enum Week: Int, CaseIterable {
-        case monday, tuesday, wednesday, thursday, friday, saturday, sunday
-    }
-}

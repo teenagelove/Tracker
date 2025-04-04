@@ -22,15 +22,8 @@ final class NewHabitOrEventCell: UITableViewCell {
         return label
     }()
     
-    private lazy var chevronImageView: UIImageView = {
-        let image = UIImageView()
-        image.image = .chevron
-        image.tintColor = .ypGray
-        image.contentMode = .center
-        return image
-    }()
-    
-    static let reuseIdentifier = "cell"
+    // MARK: - Properties
+    static let reuseIdentifier = "NewHabitCell"
     
     // MARK: - Inits
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -50,29 +43,25 @@ extension NewHabitOrEventCell {
     }
     
     func makeRounding() {
-        contentView.layer.masksToBounds = true
-        contentView.layer.cornerRadius = 16
-        contentView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        self.layer.masksToBounds = true
+        self.layer.cornerRadius = 16
+        self.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
     }
 }
 
 // MARK: - Setup Methods
 private extension NewHabitOrEventCell {
     func setupUI(){
-        contentView.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
-        contentView.addSubviews(titleLabel, chevronImageView)
+        self.accessoryType = .disclosureIndicator
+        self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        contentView.addSubviews(titleLabel)
         setupConstraints()
     }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
-            chevronImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            chevronImageView.heightAnchor.constraint(equalToConstant: 24),
-            chevronImageView.widthAnchor.constraint(equalTo: chevronImageView.heightAnchor),
-            chevronImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
 }

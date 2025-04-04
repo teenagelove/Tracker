@@ -19,6 +19,7 @@ final class TrackerViewController: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.addTarget(self, action: #selector(didPickerValueChanged(_:)), for: .valueChanged)
+        datePicker.preferredDatePickerStyle = .compact
         return datePicker
     }()
     
@@ -54,9 +55,7 @@ final class TrackerViewController: UIViewController {
         formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
-    private var categories: [TrackerCategory] = [
-        TrackerCategory(header: "Пивная", trackers: [])
-    ]
+    private var categories: [TrackerCategory] = []
     
     private lazy var visibleCategories: [TrackerCategory] = categories {
         didSet {
@@ -82,7 +81,7 @@ private extension TrackerViewController {
     }
     
     @objc func addTracker() {
-        let creating = CreatingTrackerViewController(delegate: self)
+        let creating = CreationTrackerViewController(delegate: self)
         let navigationController = UINavigationController(rootViewController: creating)
         present(navigationController, animated: true)
     }
@@ -93,7 +92,6 @@ private extension TrackerViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         view.addSubviews(collectionView, emptyStateStackView)
-        //emptyStateView.addSubviews(emptyStateImageView, emptyStateLabel)
         setupNavigationBar()
         setupCollectionView()
         setupConstraints()
@@ -116,6 +114,9 @@ private extension TrackerViewController {
         
         navigationItem.searchController = UISearchController()
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
+        navigationItem.searchController?.hidesNavigationBarDuringPresentation = false
+        navigationItem.searchController?.searchBar.showsCancelButton = false
+        
     }
     
     func setupCollectionView() {
@@ -144,7 +145,7 @@ private extension TrackerViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
 }
@@ -218,6 +219,16 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
     func didReceiveNewTracker(tracker: Tracker) {
+        if categories.isEmpty {
+           let newCategory = TrackerCategory(header: "Пивная", trackers: [])
+           categories.append(newCategory)
+           visibleCategories = categories
+           
+            collectionView.performBatchUpdates {
+                collectionView.insertSections(IndexSet(integer: 0))
+            }
+        }
+        
         var category = categories[0]
         var updatedTrackers = category.trackers
         

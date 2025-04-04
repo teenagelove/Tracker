@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol NewHabitOrEventViewControllerDelegate: AnyObject {
+    func didReceiveSchedule(schedule: Set<Week>)
+}
+
 final class NewHabitOrEventViewController: UIViewController {
     // MARK: - UI Components
     private lazy var textField: UITextField = {
@@ -32,7 +36,6 @@ final class NewHabitOrEventViewController: UIViewController {
             NewHabitOrEventCell.self,
             forCellReuseIdentifier: NewHabitOrEventCell.reuseIdentifier
         )
-        tableView.allowsSelection = false
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
@@ -42,7 +45,7 @@ final class NewHabitOrEventViewController: UIViewController {
     }()
     
     private lazy var cancelButton: UIButton = {
-        let button = UIButton(type: .custom)
+        let button = UIButton(type: .system)
         button.setTitle(Constants.UIString.cancel, for: .normal)
         button.titleLabel?.font = .medium
         button.setTitleColor(.ypRed, for: .normal)
@@ -57,7 +60,7 @@ final class NewHabitOrEventViewController: UIViewController {
     }()
     
     private lazy var applyButton: UIButton = {
-        let button = UIButton(type: .custom)
+        let button = UIButton(type: .system)
         button.backgroundColor = .ypGray
         button.setTitle(Constants.UIString.apply, for: .normal)
         button.setTitleColor(.ypBackground, for: .normal)
@@ -79,13 +82,16 @@ final class NewHabitOrEventViewController: UIViewController {
     }()
     
     private lazy var tapGesture: UITapGestureRecognizer = {
-        return UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        return tapGesture
     }()
     
     
     // MARK: - Properties
-    weak var delegate: TrackerViewControllerDelegate?
+    private weak var delegate: TrackerViewControllerDelegate?
     private var isHabit: Bool
+    private var schedule: Set<Week> = []
     
     // MARK: - Initializate
     init(isHabit: Bool, delegate: TrackerViewControllerDelegate) {
@@ -121,7 +127,7 @@ private extension NewHabitOrEventViewController {
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             color: .typeSalmon,
             emoji: "🍺",
-            schedule: Set(Tracker.Week.allCases)
+            schedule: schedule
         )
         
         delegate?.didReceiveNewTracker(tracker: tracker)
@@ -194,6 +200,10 @@ private extension NewHabitOrEventViewController {
 
 // MARK: - UITableViewDataSource
 extension NewHabitOrEventViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        isHabit ? 2 : 1
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let cell = tableView.dequeueReusableCell(withIdentifier: NewHabitOrEventCell.reuseIdentifier, for: indexPath) as? NewHabitOrEventCell
@@ -212,8 +222,16 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 extension NewHabitOrEventViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        isHabit ? 2 : 1
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch indexPath.row {
+        case 0:
+            print("Category did tap")
+        case 1:
+            navigationController?.pushViewController(ScheduleViewController(delegate: self), animated: true)
+        default:
+            break
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -230,5 +248,12 @@ extension NewHabitOrEventViewController: UITextFieldDelegate {
     
     func textFieldDidChangeSelection(_ textField: UITextField) {
         updateStateApplyButton()
+    }
+}
+
+// MARK: - NewHabitOrEventViewControllerDelegate
+extension NewHabitOrEventViewController: NewHabitOrEventViewControllerDelegate {
+    func didReceiveSchedule(schedule: Set<Week>) {
+        self.schedule = schedule
     }
 }

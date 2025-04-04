@@ -22,5 +22,6 @@ enum Constants {
         static let schedule = "Расписание"
         static let cancel = "Отменить"
         static let apply = "Применить"
+        static let submit = "Готово"
     }
 }
