@@ -115,7 +115,6 @@ private extension TrackerViewController {
         navigationItem.searchController = UISearchController()
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
         navigationItem.searchController?.hidesNavigationBarDuringPresentation = false
-        navigationItem.searchController?.searchBar.showsCancelButton = false
         
     }
     
