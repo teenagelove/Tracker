@@ -56,18 +56,22 @@ final class TrackerViewController: UIViewController {
     }()
     
     // MARK: - Properties
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy"
-        return formatter
-    }()
-    
     private var categories: [TrackerCategory] = [] {
         didSet {
-            visibleCategories.isEmpty ? hideEmptyStateView(isHidden: false) : hideEmptyStateView(isHidden: true)
+            categories.isEmpty
+            ? showEmptyStateView(isShown: true)
+            : showEmptyStateView(isShown: false)
         }
     }
-    private lazy var visibleCategories: [TrackerCategory] = categories
+    
+    private lazy var visibleCategories: [TrackerCategory] = categories {
+        didSet {
+            visibleCategories.isEmpty && !categories.isEmpty
+            ? showEmptyFilter(isShown: true)
+            : showEmptyFilter(isShown: false)
+        }
+    }
+    
     private var completedTrackers: [TrackerRecord] = []
     private var currentDate = Date() {
         didSet {
@@ -129,8 +133,14 @@ private extension TrackerViewController {
         collectionView.reloadData()
     }
     
-    func hideEmptyStateView(isHidden: Bool) {
-        emptyStateStackView.isHidden = isHidden
+    func showEmptyStateView(isShown: Bool) {
+        emptyStateStackView.isHidden = !isShown
+    }
+    
+    func showEmptyFilter(isShown: Bool) {
+        emptyStateLabel.text = Constants.UIString.notFound
+        emptyStateImageView.image = .emptyFilter
+        emptyStateStackView.isHidden = !isShown
     }
 }
 

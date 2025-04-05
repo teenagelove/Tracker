@@ -23,5 +23,6 @@ enum Constants {
         static let cancel = "Отменить"
         static let apply = "Применить"
         static let submit = "Готово"
+        static let notFound = "Ничего не найдено"
     }
 }
