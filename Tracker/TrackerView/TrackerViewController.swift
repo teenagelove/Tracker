@@ -49,6 +49,12 @@ final class TrackerViewController: UIViewController {
         return stack
     }()
     
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        return tapGesture
+    }()
+    
     // MARK: - Properties
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -87,23 +93,27 @@ private extension TrackerViewController {
         let navigationController = UINavigationController(rootViewController: creating)
         present(navigationController, animated: true)
     }
+    
+    @objc func dismissKeyboard() {
+        navigationItem.searchController?.searchBar.endEditing(true)
+        navigationItem.searchController?.dismiss(animated: true)
+    }
 }
 
 // MARK: - Private Methods
 private extension TrackerViewController {
-    func filterTrackers() {
-//        let searchText = "Aa"
+    func filterTrackers(with searchText: String = "") {
         let day = Calendar.current.component(.weekday, from: currentDate)
+        
         visibleCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
-//                let textCondition = searchText.isEmpty || tracker.name.lowercased().contains(searchText.lowercased())
+                let textCondition = searchText.isEmpty || tracker.name.lowercased().contains(searchText.lowercased())
                 
-                let dateCondition = tracker.schedule.contains { week in
-                    week.rawValue == day
+                var dateCondition: Bool {
+                    tracker.schedule.isEmpty || tracker.schedule.contains { $0.rawValue == day }
                 }
                 
-//                return textCondition && dateCondition
-                return dateCondition
+                return textCondition && dateCondition
             }
             
             if trackers.isEmpty {
@@ -117,7 +127,10 @@ private extension TrackerViewController {
         }
         
         collectionView.reloadData()
-//        filteredTrackers = trackers.filter { $0.date == currentDate }
+    }
+    
+    func hideEmptyStateView(isHidden: Bool) {
+        emptyStateStackView.isHidden = isHidden
     }
 }
 
@@ -126,6 +139,7 @@ private extension TrackerViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         view.addSubviews(collectionView, emptyStateStackView)
+        view.addGestureRecognizer(tapGesture)
         setupNavigationBar()
         setupCollectionView()
         setupConstraints()
@@ -147,6 +161,7 @@ private extension TrackerViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
         navigationItem.searchController = UISearchController()
+        navigationItem.searchController?.searchBar.delegate = self
         // TODO: Убрать потом для локализации
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
         navigationItem.searchController?.searchBar.setValue("Отменить", forKey: "cancelButtonText")
@@ -180,13 +195,6 @@ private extension TrackerViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
-    }
-}
-
-// MARK: - Private Methods
-private extension TrackerViewController {
-    func hideEmptyStateView(isHidden: Bool) {
-        emptyStateStackView.isHidden = isHidden
     }
 }
 
@@ -294,5 +302,17 @@ extension TrackerViewController: TrackerCellDelegate {
 //        let day = calendar.component(.weekday, from: currentDate)
 //        let trackerID = cell.trackerID
         cell.updateButton(isCompleted: true)
+    }
+}
+
+
+// MARK: - UISearchBarDelegate
+extension TrackerViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filterTrackers(with: searchText)
+    }
+        
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        filterTrackers(with: "")
     }
 }
