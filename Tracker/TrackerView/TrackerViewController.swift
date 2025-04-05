@@ -133,8 +133,8 @@ private extension TrackerViewController {
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            emptyStateStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyStateStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyStateStackView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            emptyStateStackView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             
             emptyStateImageView.heightAnchor.constraint(equalToConstant: 80),
             emptyStateImageView.widthAnchor.constraint(equalToConstant: 80),

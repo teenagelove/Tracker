@@ -36,13 +36,15 @@ final class ScheduleViewController: UIViewController {
     }()
     
     // MARK: - Properties
-    private let daysOfWeek = Week.allCases.map { $0.title }
+    private let daysOfWeek = Week.allCases
     private var selectedDays: Set<Week> = []
+    private var switchStates: [String: Bool] = [:]
     private weak var delegate: NewHabitOrEventViewControllerDelegate?
     
     // MARK: - Initilizate
-    init(delegate: NewHabitOrEventViewControllerDelegate) {
+    init(schedule: Set<Week>, delegate: NewHabitOrEventViewControllerDelegate) {
         self.delegate = delegate
+        selectedDays = schedule
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -109,7 +111,10 @@ extension ScheduleViewController: UITableViewDataSource {
         }
         
         let day = daysOfWeek[indexPath.row]
-        cell.configure(with: day, delegate: self)
+        
+        let isSelected = selectedDays.contains(day)
+        
+        cell.configure(with: day.title, isEnable: isSelected, delegate: self)
         return cell
     }
 }
@@ -124,8 +129,8 @@ extension ScheduleViewController: UITableViewDelegate {
 // MARK: - ScheduleTableViewCellDelegate
 extension ScheduleViewController: ScheduleTableViewCellDelegate {
     func switchToggled(title: String?, isEnable: Bool) {
-        guard let day = Week(title: title ?? "") else { return }
-        
+        guard let dayTitle = title, let day = Week(title: dayTitle) else { return }
+                
         if isEnable {
             selectedDays.insert(day)
         } else {

@@ -137,28 +137,46 @@ private extension NewHabitOrEventViewController {
 
 // MARK: - Private Methods
 private extension NewHabitOrEventViewController {
-    func getTitleFromRow(for row: Int) -> (title: String, subtitle: String?) {
-        var title: String = ""
-        var subtitle: String? = nil
-        
+    func getTitleFromRow(for row: Int) -> String {
         switch row {
         case 0:
-            title = Constants.UIString.category
-            subtitle = "Пивная категория"
+            return Constants.UIString.category
         case 1:
-            title = Constants.UIString.schedule
-            subtitle = nil
+            return Constants.UIString.schedule
         default:
-            break
+            return ""
+        }
+    }
+    
+    func getSubtitleFromRow(for row: Int) -> String? {
+        switch row {
+        case 0:
+            return "Пивная категория"
+        case 1:
+            return schedule.isEmpty ? nil : getScheduleShortTitle()
+        default:
+            return nil
+        }
+    }
+    
+    func getScheduleShortTitle() -> String {
+        if schedule.count == 7 {
+            return "Каждый день"
         }
         
-        return (title, subtitle)
+        let sortedDays = schedule.sorted { $0.rawValue < $1.rawValue }
+        return sortedDays.map { $0.shortTitle }.joined(separator: ", ")
     }
     
     func updateStateApplyButton() {
-        let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        applyButton.isEnabled = !text.isEmpty
-        applyButton.backgroundColor = text.isEmpty ? .ypGray : .ypAccent
+        let trimmedText = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+       
+        var isValid: Bool {
+            self.isHabit ? !trimmedText.isEmpty && !schedule.isEmpty : !trimmedText.isEmpty
+        }
+        
+        applyButton.isEnabled = isValid
+        applyButton.backgroundColor = isValid ? .ypAccent : .ypGray
     }
 }
 
@@ -212,7 +230,8 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: NewHabitOrEventCell.reuseIdentifier, for: indexPath) as? NewHabitOrEventCell
         else { return NewHabitOrEventCell() }
         
-        let (title, subtitle) = getTitleFromRow(for: indexPath.row)
+        let title = getTitleFromRow(for: indexPath.row)
+        let subtitle = getSubtitleFromRow(for: indexPath.row)
         cell.configure(title: title, subtitle: subtitle)
         
         if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
@@ -231,7 +250,13 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
         case 0:
             print("Category did tap")
         case 1:
-            navigationController?.pushViewController(ScheduleViewController(delegate: self), animated: true)
+            navigationController?.pushViewController(
+                ScheduleViewController(
+                    schedule: schedule,
+                    delegate: self
+                ),
+                animated: true
+            )
         default:
             break
         }
@@ -259,5 +284,8 @@ extension NewHabitOrEventViewController: UITextFieldDelegate {
 extension NewHabitOrEventViewController: NewHabitOrEventViewControllerDelegate {
     func didReceiveSchedule(schedule: Set<Week>) {
         self.schedule = schedule
+        updateStateApplyButton()
+        let indexPath = IndexPath(row: 1, section: 0)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }

@@ -49,9 +49,10 @@ private extension ScheduleTableViewCell {
 
 // MARK: - Public Methods
 extension ScheduleTableViewCell {
-    func configure(with title: String, delegate: ScheduleTableViewCellDelegate) {
+    func configure(with title: String, isEnable: Bool, delegate: ScheduleTableViewCellDelegate) {
         self.delegate = delegate
         self.titleLabel.text = title
+        switchControl.isOn = isEnable
     }
 }
 
