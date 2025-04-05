@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol TrackerCellDelegate: AnyObject {
+    func didTapPlusButton(in cell: TrackerCollectionViewCell)
+}
+
 final class TrackerCollectionViewCell: UICollectionViewCell {
     static let reuseIdentifier = "TrackerCollectionViewCell"
     
@@ -55,6 +59,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
+    // MARK: - Properties
+    private weak var delegate: TrackerCellDelegate?
+    private(set) var trackerID: UUID?
+    
+    // MARK: - Initialize
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -67,26 +76,32 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
 // MARK: - Public Methods
 extension TrackerCollectionViewCell {
-    func configureCell(tracker: Tracker, days: Int, isCompleted: Bool) {
+    func configureCell(tracker: Tracker, days: Int, isCompleted: Bool, delegate: TrackerCellDelegate) {
+        trackerID = tracker.id
         cardView.backgroundColor = tracker.color
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name
+        self.delegate = delegate
+    }
+}
+
+// MARK: - Public Methods
+extension TrackerCollectionViewCell {
+    func updateButton(isCompleted: Bool) {
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            guard let self else { return }
+            
+            self.plusButton.setImage(isCompleted ? .checkmark : .plus, for: .normal)
+            self.plusButton.alpha = isCompleted ? 0.3 : 1
+        }
     }
 }
 
 // MARK: - Actions
 private extension TrackerCollectionViewCell {
     @objc func plusButtonDidTap() {
-        updateButton(isCompleted: true)
-    }
-}
-
-// MARK: - Private Methods
-private extension TrackerCollectionViewCell {
-    func updateButton(isCompleted: Bool) {
-        plusButton.setImage(isCompleted ? .checkmark : .plus,for: .normal)
-        plusButton.alpha = isCompleted ? 0.3 : 1
+        delegate?.didTapPlusButton(in: self)
     }
 }
 

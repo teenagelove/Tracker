@@ -63,6 +63,11 @@ final class TrackerViewController: UIViewController {
     }
     private lazy var visibleCategories: [TrackerCategory] = categories
     private var completedTrackers: [TrackerRecord] = []
+    private var currentDate = Date() {
+        didSet {
+            filterTrackers()
+        }
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -74,14 +79,45 @@ final class TrackerViewController: UIViewController {
 // MARK: - Actions
 private extension TrackerViewController {
     @objc func didPickerValueChanged(_ sender: UIDatePicker) {
-        let date = dateFormatter.string(from: sender.date)
-        print(date)
+        currentDate = sender.date
     }
     
     @objc func addTracker() {
         let creating = CreationTrackerViewController(delegate: self)
         let navigationController = UINavigationController(rootViewController: creating)
         present(navigationController, animated: true)
+    }
+}
+
+// MARK: - Private Methods
+private extension TrackerViewController {
+    func filterTrackers() {
+//        let searchText = "Aa"
+        let day = Calendar.current.component(.weekday, from: currentDate)
+        visibleCategories = categories.compactMap { category in
+            let trackers = category.trackers.filter { tracker in
+//                let textCondition = searchText.isEmpty || tracker.name.lowercased().contains(searchText.lowercased())
+                
+                let dateCondition = tracker.schedule.contains { week in
+                    week.rawValue == day
+                }
+                
+//                return textCondition && dateCondition
+                return dateCondition
+            }
+            
+            if trackers.isEmpty {
+                return nil
+            }
+            
+            return TrackerCategory(
+                header: category.header,
+                trackers: trackers
+            )
+        }
+        
+        collectionView.reloadData()
+//        filteredTrackers = trackers.filter { $0.date == currentDate }
     }
 }
 
@@ -175,7 +211,8 @@ extension TrackerViewController: UICollectionViewDataSource {
         cell.configureCell(
             tracker: visibleCategories[indexPath.section].trackers[indexPath.row],
             days: 1,
-            isCompleted: false
+            isCompleted: false,
+            delegate: self
         )
         return cell
     }
@@ -237,12 +274,25 @@ extension TrackerViewController: TrackerViewControllerDelegate {
         updatedTrackers.append(tracker)
         category = TrackerCategory(header: category.header, trackers: updatedTrackers)
         categories[0] = category
-        visibleCategories = categories
         
-        let newIndexPath = IndexPath(row: updatedTrackers.count - 1, section: 0)
+        filterTrackers()
+    }
+}
+
+// MARK: - TrackerCellDelegate
+extension TrackerViewController: TrackerCellDelegate {
+    func didTapPlusButton(in cell: TrackerCollectionViewCell) {
+        guard
+            currentDate <= Date()
+//            let indexPath = collectionView.indexPath(for: cell)
+            
+        else { return }
         
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [newIndexPath])
-        }
+//        var calendar = Calendar.current
+//        calendar.firstWeekday = 2
+//        
+//        let day = calendar.component(.weekday, from: currentDate)
+//        let trackerID = cell.trackerID
+        cell.updateButton(isCompleted: true)
     }
 }

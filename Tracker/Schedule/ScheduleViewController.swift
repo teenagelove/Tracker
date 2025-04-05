@@ -38,7 +38,6 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Properties
     private let daysOfWeek = Week.allCases
     private var selectedDays: Set<Week> = []
-    private var switchStates: [String: Bool] = [:]
     private weak var delegate: NewHabitOrEventViewControllerDelegate?
     
     // MARK: - Initilizate
