@@ -56,6 +56,8 @@ final class TrackerViewController: UIViewController {
     }()
     
     // MARK: - Properties
+    private var completedTrackers: [TrackerRecord] = []
+    
     private var categories: [TrackerCategory] = [] {
         didSet {
             categories.isEmpty
@@ -72,7 +74,6 @@ final class TrackerViewController: UIViewController {
         }
     }
     
-    private var completedTrackers: [TrackerRecord] = []
     private var currentDate = Date() {
         didSet {
             filterTrackers()
@@ -106,12 +107,13 @@ private extension TrackerViewController {
 
 // MARK: - Private Methods
 private extension TrackerViewController {
-    func filterTrackers(with searchText: String = "") {
+    func filterTrackers() {
         let day = Calendar.current.component(.weekday, from: currentDate)
+        let searchBarText = navigationItem.searchController?.searchBar.text ?? ""
         
         visibleCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
-                let textCondition = searchText.isEmpty || tracker.name.lowercased().contains(searchText.lowercased())
+                let textCondition = searchBarText.isEmpty || tracker.name.lowercased().contains(searchBarText.lowercased())
                 
                 var dateCondition: Bool {
                     tracker.schedule.isEmpty || tracker.schedule.contains { $0.rawValue == day }
@@ -319,10 +321,10 @@ extension TrackerViewController: TrackerCellDelegate {
 // MARK: - UISearchBarDelegate
 extension TrackerViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterTrackers(with: searchText)
+        filterTrackers()
     }
         
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        filterTrackers(with: "")
+        filterTrackers()
     }
 }
