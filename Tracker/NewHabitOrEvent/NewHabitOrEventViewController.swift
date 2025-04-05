@@ -164,7 +164,12 @@ private extension NewHabitOrEventViewController {
             return "Каждый день"
         }
         
-        let sortedDays = schedule.sorted { $0.rawValue < $1.rawValue }
+        let sortedDays = schedule.sorted {
+            let value1 = $0.rawValue == 1 ? 8 : $0.rawValue
+            let value2 = $1.rawValue == 1 ? 8 : $1.rawValue
+            return value1 < value2
+        }
+        
         return sortedDays.map { $0.shortTitle }.joined(separator: ", ")
     }
     

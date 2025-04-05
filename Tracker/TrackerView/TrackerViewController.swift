@@ -60,17 +60,13 @@ final class TrackerViewController: UIViewController {
     
     private var categories: [TrackerCategory] = [] {
         didSet {
-            categories.isEmpty
-            ? showEmptyStateView(isShown: true)
-            : showEmptyStateView(isShown: false)
+            updateEmptyStateVisibility()
         }
     }
     
     private lazy var visibleCategories: [TrackerCategory] = categories {
         didSet {
-            visibleCategories.isEmpty && !categories.isEmpty
-            ? showEmptyFilter(isShown: true)
-            : showEmptyFilter(isShown: false)
+            updateEmptyStateVisibility()
         }
     }
     
@@ -135,14 +131,18 @@ private extension TrackerViewController {
         collectionView.reloadData()
     }
     
-    func showEmptyStateView(isShown: Bool) {
-        emptyStateStackView.isHidden = !isShown
-    }
-    
-    func showEmptyFilter(isShown: Bool) {
-        emptyStateLabel.text = Constants.UIString.notFound
-        emptyStateImageView.image = .emptyFilter
-        emptyStateStackView.isHidden = !isShown
+    func updateEmptyStateVisibility() {
+        if categories.isEmpty {
+            emptyStateLabel.text = Constants.UIString.emptyStateLabel
+            emptyStateImageView.image = .emptyStateStub
+            emptyStateStackView.isHidden = false
+        } else if visibleCategories.isEmpty {
+            emptyStateLabel.text = Constants.UIString.notFound
+            emptyStateImageView.image = .emptyFilter
+            emptyStateStackView.isHidden = false
+        } else {
+            emptyStateStackView.isHidden = true
+        }
     }
 }
 
@@ -196,8 +196,8 @@ private extension TrackerViewController {
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            emptyStateStackView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            emptyStateStackView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            emptyStateStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyStateStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             emptyStateImageView.heightAnchor.constraint(equalToConstant: 80),
             emptyStateImageView.widthAnchor.constraint(equalToConstant: 80),
@@ -325,6 +325,7 @@ extension TrackerViewController: UISearchBarDelegate {
     }
         
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
         filterTrackers()
     }
 }
