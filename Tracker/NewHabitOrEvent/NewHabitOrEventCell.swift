@@ -16,10 +16,18 @@ final class NewHabitOrEventCell: UITableViewCell {
     
     private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Пивная категория"
         label.font = .regular
-        label.tintColor = .ypGray
+        label.textColor = .ypGray
+        label.isHidden = true
         return label
+    }()
+    
+    private lazy var verticalStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
+        stack.axis = .vertical
+        stack.spacing = 2
+        stack.alignment = .leading
+        return stack
     }()
     
     // MARK: - Properties
@@ -38,13 +46,21 @@ final class NewHabitOrEventCell: UITableViewCell {
 
 // MARK: - Public Methods
 extension NewHabitOrEventCell {
-    func setTitle(title: String) {
+    func configure(title: String, subtitle: String?) {
         titleLabel.text = title
+        if let subtitle = subtitle, !subtitle.isEmpty {
+            subtitleLabel.text = subtitle
+            subtitleLabel.isHidden = false
+        } else {
+            subtitleLabel.isHidden = true
+        }
     }
     
     func makeRounding() {
         self.layer.masksToBounds = true
         self.layer.cornerRadius = 16
+        self.selectedBackgroundView?.layer.cornerRadius = 16
+        self.selectedBackgroundView?.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         self.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
     }
 }
@@ -54,14 +70,15 @@ private extension NewHabitOrEventCell {
     func setupUI(){
         self.accessoryType = .disclosureIndicator
         self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
-        contentView.addSubviews(titleLabel)
+        contentView.addSubviews(verticalStack)
         setupConstraints()
     }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            verticalStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            verticalStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            verticalStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])
     }
 }

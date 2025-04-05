@@ -19,6 +19,7 @@ final class TrackerViewController: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.addTarget(self, action: #selector(didPickerValueChanged(_:)), for: .valueChanged)
+        datePicker.tintColor = .ypAccent
         datePicker.preferredDatePickerStyle = .compact
         return datePicker
     }()
@@ -55,18 +56,16 @@ final class TrackerViewController: UIViewController {
         formatter.dateFormat = "dd.MM.yyyy"
         return formatter
     }()
-    private var categories: [TrackerCategory] = []
     
-    private lazy var visibleCategories: [TrackerCategory] = categories {
+    private var categories: [TrackerCategory] = [] {
         didSet {
             visibleCategories.isEmpty ? hideEmptyStateView(isHidden: false) : hideEmptyStateView(isHidden: true)
         }
     }
-    
-    private var currentDate = Date()
-    
+    private lazy var visibleCategories: [TrackerCategory] = categories
     private var completedTrackers: [TrackerRecord] = []
-
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -113,9 +112,8 @@ private extension TrackerViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
         navigationItem.searchController = UISearchController()
+        // TODO: Убрать потом для локализации
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
-        navigationItem.searchController?.hidesNavigationBarDuringPresentation = false
-        
     }
     
     func setupCollectionView() {
@@ -149,6 +147,7 @@ private extension TrackerViewController {
     }
 }
 
+// MARK: - Private Methods
 private extension TrackerViewController {
     func hideEmptyStateView(isHidden: Bool) {
         emptyStateStackView.isHidden = isHidden

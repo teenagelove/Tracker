@@ -137,19 +137,22 @@ private extension NewHabitOrEventViewController {
 
 // MARK: - Private Methods
 private extension NewHabitOrEventViewController {
-    func getTitleFromRow(for row: Int) -> String {
+    func getTitleFromRow(for row: Int) -> (title: String, subtitle: String?) {
         var title: String = ""
+        var subtitle: String? = nil
         
         switch row {
         case 0:
             title = Constants.UIString.category
+            subtitle = "Пивная категория"
         case 1:
             title = Constants.UIString.schedule
+            subtitle = nil
         default:
             break
         }
         
-        return title
+        return (title, subtitle)
     }
     
     func updateStateApplyButton() {
@@ -209,7 +212,8 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: NewHabitOrEventCell.reuseIdentifier, for: indexPath) as? NewHabitOrEventCell
         else { return NewHabitOrEventCell() }
         
-        cell.setTitle(title: getTitleFromRow(for: indexPath.row))
+        let (title, subtitle) = getTitleFromRow(for: indexPath.row)
+        cell.configure(title: title, subtitle: subtitle)
         
         if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
