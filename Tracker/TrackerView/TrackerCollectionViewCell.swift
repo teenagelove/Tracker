@@ -23,7 +23,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.font = .little
-        label.text = "❤️"
         label.textAlignment = .center
         label.layer.cornerRadius = 12
         label.layer.masksToBounds = true
@@ -35,24 +34,24 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .little
         label.numberOfLines = 0
-        label.text = "Попить пивка"
         return label
     }()
     
     private lazy var recordLabel: UILabel = {
         let label = UILabel()
         label.font = .little
-        label.text = "1 день"
         return label
     }()
     
     private lazy var plusButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.setImage(.plus, for: .normal)
+        button.contentMode = .center
         button.tintColor = .ypWhite
         button.backgroundColor = .typeSalmon
         button.layer.cornerRadius = 17
         button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(plusButtonDidTap), for: .primaryActionTriggered)
         return button
     }()
     
@@ -68,11 +67,26 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
 // MARK: - Public Methods
 extension TrackerCollectionViewCell {
-    func configureCell(tracker: Tracker) {
+    func configureCell(tracker: Tracker, days: Int, isCompleted: Bool) {
         cardView.backgroundColor = tracker.color
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name
+    }
+}
+
+// MARK: - Actions
+private extension TrackerCollectionViewCell {
+    @objc func plusButtonDidTap() {
+        updateButton(isCompleted: true)
+    }
+}
+
+// MARK: - Private Methods
+private extension TrackerCollectionViewCell {
+    func updateButton(isCompleted: Bool) {
+        plusButton.setImage(isCompleted ? .checkmark : .plus,for: .normal)
+        plusButton.alpha = isCompleted ? 0.3 : 1
     }
 }
 

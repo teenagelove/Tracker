@@ -19,7 +19,6 @@ final class TrackerViewController: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.addTarget(self, action: #selector(didPickerValueChanged(_:)), for: .valueChanged)
-        datePicker.tintColor = .ypAccent
         datePicker.preferredDatePickerStyle = .compact
         return datePicker
     }()
@@ -114,6 +113,7 @@ private extension TrackerViewController {
         navigationItem.searchController = UISearchController()
         // TODO: Убрать потом для локализации
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
+        navigationItem.searchController?.searchBar.setValue("Отменить", forKey: "cancelButtonText")
     }
     
     func setupCollectionView() {
@@ -172,7 +172,11 @@ extension TrackerViewController: UICollectionViewDataSource {
             ) as? TrackerCollectionViewCell
         else { return TrackerCollectionViewCell() }
         
-        cell.configureCell(tracker: visibleCategories[indexPath.section].trackers[indexPath.row])
+        cell.configureCell(
+            tracker: visibleCategories[indexPath.section].trackers[indexPath.row],
+            days: 1,
+            isCompleted: false
+        )
         return cell
     }
     
