@@ -76,14 +76,15 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
 // MARK: - Public Methods
 extension TrackerCollectionViewCell {
-    func configureCell(tracker: Tracker, days: Int, isCompleted: Bool, delegate: TrackerCellDelegate) {
+    func configureCell(_ viewModel: TrackerViewModel, delegate: TrackerCellDelegate) {
+        let tracker = viewModel.tracker
         trackerID = tracker.id
         cardView.backgroundColor = tracker.color
-        recordLabel.text = "\(days) \(days.dayWord)"
+        recordLabel.text = "\(viewModel.completedDays) \(viewModel.completedDays.dayWord)"
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name
-        updateButton(isCompleted: isCompleted)
+        updateButton(isCompleted: viewModel.isCompletedToday)
         self.delegate = delegate
     }
 }

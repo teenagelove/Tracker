@@ -235,15 +235,14 @@ extension TrackerViewController: UICollectionViewDataSource {
         else { return TrackerCollectionViewCell() }
         
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
-        let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
-        let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
-        cell.configureCell(
+        let trackerViewModel = TrackerViewModel(
             tracker: tracker,
-            days: completedDays,
-            isCompleted: isCompletedToday,
-            delegate: self
+            isCompletedToday: isTrackerCompletedToday(id: tracker.id),
+            completedDays: completedTrackers.filter { $0.id == tracker.id }.count
         )
+        
+        cell.configureCell(trackerViewModel,delegate: self)
         
         return cell
     }
