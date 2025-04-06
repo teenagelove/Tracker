@@ -49,7 +49,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private lazy var plusButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(.plus, for: .normal)
+        button.setImage(.plusRecord, for: .normal)
         button.contentMode = .center
         button.tintColor = .ypWhite
         button.backgroundColor = .typeSalmon
@@ -79,22 +79,12 @@ extension TrackerCollectionViewCell {
     func configureCell(tracker: Tracker, days: Int, isCompleted: Bool, delegate: TrackerCellDelegate) {
         trackerID = tracker.id
         cardView.backgroundColor = tracker.color
+        recordLabel.text = "\(days) \(days.dayWord)"
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name
+        updateButton(isCompleted: isCompleted)
         self.delegate = delegate
-    }
-}
-
-// MARK: - Public Methods
-extension TrackerCollectionViewCell {
-    func updateButton(isCompleted: Bool) {
-        UIView.animate(withDuration: 0.5) { [weak self] in
-            guard let self else { return }
-            
-            self.plusButton.setImage(isCompleted ? .checkmark : .plus, for: .normal)
-            self.plusButton.alpha = isCompleted ? 0.3 : 1
-        }
     }
 }
 
@@ -102,6 +92,18 @@ extension TrackerCollectionViewCell {
 private extension TrackerCollectionViewCell {
     @objc func plusButtonDidTap() {
         delegate?.didTapPlusButton(in: self)
+    }
+}
+
+// MARK: - Private Methods
+private extension TrackerCollectionViewCell {
+    func updateButton(isCompleted: Bool) {
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            guard let self else { return }
+            
+            self.plusButton.setImage(isCompleted ? .checkmark : .plusRecord, for: .normal)
+            self.plusButton.alpha = isCompleted ? 0.3 : 1
+        }
     }
 }
 

@@ -144,6 +144,12 @@ private extension TrackerViewController {
             emptyStateStackView.isHidden = true
         }
     }
+    
+    func isTrackerCompletedToday(id: UUID) -> Bool {
+        completedTrackers.contains {
+            $0.id == id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+        }
+    }
 }
 
 // MARK: - Setup Methods
@@ -228,12 +234,17 @@ extension TrackerViewController: UICollectionViewDataSource {
             ) as? TrackerCollectionViewCell
         else { return TrackerCollectionViewCell() }
         
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
+        let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
+        let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
+        
         cell.configureCell(
-            tracker: visibleCategories[indexPath.section].trackers[indexPath.row],
-            days: 1,
-            isCompleted: false,
+            tracker: tracker,
+            days: completedDays,
+            isCompleted: isCompletedToday,
             delegate: self
         )
+        
         return cell
     }
     
@@ -303,17 +314,21 @@ extension TrackerViewController: TrackerViewControllerDelegate {
 extension TrackerViewController: TrackerCellDelegate {
     func didTapPlusButton(in cell: TrackerCollectionViewCell) {
         guard
-            currentDate <= Date()
-//            let indexPath = collectionView.indexPath(for: cell)
-            
+            currentDate <= Date(),
+            let trackerID = cell.trackerID,
+            let indexPath = collectionView.indexPath(for: cell)
         else { return }
         
-//        var calendar = Calendar.current
-//        calendar.firstWeekday = 2
-//        
-//        let day = calendar.component(.weekday, from: currentDate)
-//        let trackerID = cell.trackerID
-        cell.updateButton(isCompleted: true)
+        if !isTrackerCompletedToday(id: trackerID) {
+            let newRecord = TrackerRecord(id: trackerID, date: currentDate)
+            completedTrackers.append(newRecord)
+        } else {
+            completedTrackers.removeAll {
+                $0.id == trackerID && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+            }
+        }
+        
+        collectionView.reloadItems(at: [indexPath])
     }
 }
 
