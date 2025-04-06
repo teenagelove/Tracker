@@ -56,7 +56,7 @@ final class TrackerViewController: UIViewController {
     }()
     
     // MARK: - Properties
-    private var completedTrackers: [TrackerRecord] = []
+    private var completedTrackers: Set<TrackerRecord> = []
     
     private var categories: [TrackerCategory] = [] {
         didSet {
@@ -146,9 +146,8 @@ private extension TrackerViewController {
     }
     
     func isTrackerCompletedToday(id: UUID) -> Bool {
-        completedTrackers.contains {
-            $0.id == id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
-        }
+        let record = TrackerRecord(id: id, date: currentDate)
+        return completedTrackers.contains(record)
     }
 }
 
@@ -318,13 +317,12 @@ extension TrackerViewController: TrackerCellDelegate {
             let indexPath = collectionView.indexPath(for: cell)
         else { return }
         
-        if !isTrackerCompletedToday(id: trackerID) {
-            let newRecord = TrackerRecord(id: trackerID, date: currentDate)
-            completedTrackers.append(newRecord)
+        let record = TrackerRecord(id: trackerID, date: currentDate)
+
+        if !completedTrackers.contains(record) {
+            completedTrackers.insert(record)
         } else {
-            completedTrackers.removeAll {
-                $0.id == trackerID && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
-            }
+            completedTrackers.remove(record)
         }
         
         collectionView.reloadItems(at: [indexPath])
