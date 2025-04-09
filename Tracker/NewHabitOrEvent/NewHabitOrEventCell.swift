@@ -57,19 +57,19 @@ extension NewHabitOrEventCell {
     }
     
     func makeRounding() {
-        self.layer.masksToBounds = true
-        self.layer.cornerRadius = 16
-        self.selectedBackgroundView?.layer.cornerRadius = 16
-        self.selectedBackgroundView?.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        self.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        layer.masksToBounds = true
+        layer.cornerRadius = 16
+        selectedBackgroundView?.layer.cornerRadius = 16
+        selectedBackgroundView?.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
     }
 }
 
 // MARK: - Setup Methods
 private extension NewHabitOrEventCell {
     func setupUI(){
-        self.accessoryType = .disclosureIndicator
-        self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        accessoryType = .disclosureIndicator
+        backgroundColor = .ypLightGray.withAlphaComponent(0.3)
         contentView.addSubviews(verticalStack)
         setupConstraints()
     }

@@ -19,6 +19,6 @@ extension TrackerRecord: Hashable {
     }
         
     static func == (lhs: TrackerRecord, rhs: TrackerRecord) -> Bool {
-        return lhs.id == rhs.id && Calendar.current.isDate(lhs.date, inSameDayAs: rhs.date)
+        lhs.id == rhs.id && Calendar.current.isDate(lhs.date, inSameDayAs: rhs.date)
     }
 }

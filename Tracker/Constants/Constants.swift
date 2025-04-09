@@ -4,7 +4,6 @@
 //
 //  Created by Danil Kazakov on 21.03.2025.
 //
-import UIKit
 
 enum Constants {
     enum UIString {
