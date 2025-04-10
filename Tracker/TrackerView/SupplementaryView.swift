@@ -7,8 +7,8 @@
 
 import UIKit
 
-final class TrackerHeaderView: UICollectionReusableView {
-    static let reuseIdentifier = "TrackerHeaderView"
+final class SupplementaryView: UICollectionReusableView {
+    static let reuseIdentifier = "SupplementaryView"
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -19,9 +19,7 @@ final class TrackerHeaderView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         addSubview(titleLabel)
-        
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
             titleLabel.topAnchor.constraint(equalTo: topAnchor),
@@ -35,7 +33,7 @@ final class TrackerHeaderView: UICollectionReusableView {
 }
 
 // MARK: - Public Methods
-extension TrackerHeaderView {
+extension SupplementaryView {
     func setTitle(_ title: String) {
         self.titleLabel.text = title
     }

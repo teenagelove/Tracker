@@ -193,9 +193,9 @@ private extension TrackerViewController {
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier
         )
         collectionView.register(
-            TrackerHeaderView.self,
+            SupplementaryView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: TrackerHeaderView.reuseIdentifier
+            withReuseIdentifier: SupplementaryView.reuseIdentifier
             )
     }
 
@@ -249,10 +249,10 @@ extension TrackerViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let view = collectionView.dequeueReusableSupplementaryView(
             ofKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: TrackerHeaderView.reuseIdentifier,
+            withReuseIdentifier: SupplementaryView.reuseIdentifier,
             for: indexPath
-        ) as? TrackerHeaderView
-        else { return TrackerHeaderView() }
+        ) as? SupplementaryView
+        else { return SupplementaryView() }
         
         view.setTitle(visibleCategories[indexPath.section].header)
         return view
