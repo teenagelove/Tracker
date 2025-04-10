@@ -8,8 +8,10 @@
 import UIKit
 
 final class SupplementaryView: UICollectionReusableView {
+    // MARK: - Properties
     static let reuseIdentifier = "SupplementaryView"
     
+    // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .header
@@ -17,6 +19,7 @@ final class SupplementaryView: UICollectionReusableView {
         return label
     }()
     
+    // MARK: - Initializate
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(titleLabel)
@@ -34,7 +37,7 @@ final class SupplementaryView: UICollectionReusableView {
 
 // MARK: - Public Methods
 extension SupplementaryView {
-    func setTitle(_ title: String) {
-        self.titleLabel.text = title
+    func configure(_ title: String) {
+        titleLabel.text = title
     }
 }

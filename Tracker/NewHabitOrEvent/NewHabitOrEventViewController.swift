@@ -410,17 +410,20 @@ extension NewHabitOrEventViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        guard let section = Section(rawValue: indexPath.section),
-              kind == UICollectionView.elementKindSectionHeader else {
+        guard
+            let section = Section(rawValue: indexPath.section),
+              kind == UICollectionView.elementKindSectionHeader,
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: SupplementaryView.reuseIdentifier,
+                for: indexPath
+            ) as? SupplementaryView
+        else {
+            assertionFailure("Failed to dequeue SupplementaryView or invalid section/kind")
             return UICollectionReusableView()
         }
 
-        let header = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: SupplementaryView.reuseIdentifier,
-            for: indexPath
-        ) as! SupplementaryView
-        header.setTitle(section.title)
+        header.configure(section.title)
         return header
     }
 }

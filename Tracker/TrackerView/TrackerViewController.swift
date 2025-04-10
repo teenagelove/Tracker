@@ -254,7 +254,7 @@ extension TrackerViewController: UICollectionViewDataSource {
         ) as? SupplementaryView
         else { return SupplementaryView() }
         
-        view.setTitle(visibleCategories[indexPath.section].header)
+        view.configure(visibleCategories[indexPath.section].header)
         return view
     }
 }
