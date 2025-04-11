@@ -115,6 +115,7 @@ final class NewHabitOrEventViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: 24, left: outerMargin, bottom: 24, right: outerMargin)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.allowsMultipleSelection = true
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(
@@ -138,6 +139,18 @@ final class NewHabitOrEventViewController: UIViewController {
     private weak var delegate: TrackerViewControllerDelegate?
     private var isHabit: Bool
     private var schedule: Set<Week> = []
+    
+    private var selectedEmoji: (emoji: String?, indexPath: IndexPath?) {
+        didSet {
+            updateStateApplyButton()
+        }
+    }
+    
+    private var selectedColor: (color: UIColor?, indexPath: IndexPath?) {
+        didSet {
+            updateStateApplyButton()
+        }
+    }
     
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                           "😇", "😡", "🥶", "🤔", "🙌", "🍔",
@@ -181,8 +194,8 @@ private extension NewHabitOrEventViewController {
         let tracker = Tracker(
             id: UUID(),
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            color: .typeSalmon,
-            emoji: "🍺",
+            color: selectedColor.color ?? .typeSalmon,
+            emoji: selectedEmoji.emoji ?? "🍺",
             schedule: schedule
         )
         
@@ -233,7 +246,12 @@ private extension NewHabitOrEventViewController {
         let trimmedText = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
        
         var isValid: Bool {
-            self.isHabit ? !trimmedText.isEmpty && !schedule.isEmpty : !trimmedText.isEmpty
+            let hasText = !trimmedText.isEmpty
+            let hasSchedule = isHabit ? !schedule.isEmpty : true
+            let hasEmoji = selectedEmoji.emoji != nil
+            let hasColor = selectedColor.color != nil
+            
+            return hasText && hasSchedule && hasEmoji && hasColor
         }
         
         applyButton.isEnabled = isValid
@@ -430,5 +448,49 @@ extension NewHabitOrEventViewController: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewFlowDelegate
 extension NewHabitOrEventViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section)
+        else {
+            assertionFailure("Invalid section")
+            return
+        }
+        
+        switch section {
+        case .emoji:
+            if let previous = selectedEmoji.indexPath, previous != indexPath {
+                collectionView.deselectItem(at: previous, animated: true)
+            }
+            selectedEmoji.indexPath = indexPath
+            selectedEmoji.emoji = emojis[indexPath.item]
+            
+        case .color:
+            if let previous = selectedColor.indexPath, previous != indexPath {
+                collectionView.deselectItem(at: previous, animated: true)
+            }
+            selectedColor.indexPath = indexPath
+            selectedColor.color = colors[indexPath.item]
+        }
+    }
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section)
+        else {
+            assertionFailure("Invalid section")
+            return
+        }
+        
+        switch section {
+        case .emoji:
+            if selectedEmoji.indexPath == indexPath {
+                selectedEmoji.indexPath = nil
+                selectedEmoji.emoji = nil
+            }
+            
+        case .color:
+            if selectedColor.indexPath == indexPath {
+                selectedColor.indexPath = nil
+                selectedColor.color = nil
+            }
+        }
+    }
 }
