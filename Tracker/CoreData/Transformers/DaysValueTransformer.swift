@@ -7,10 +7,40 @@
 
 import Foundation
 
+//@objc
+//final class DaysValueTransformer: ValueTransformer {
+//    override class func transformedValueClass() -> AnyClass {
+//        NSData.self
+//    }
+//    
+//    override class func allowsReverseTransformation() -> Bool {
+//        true
+//    }
+//    
+//    override func transformedValue(_ value: Any?) -> Any? {
+//        guard let days = value as? Set<Week> else { return nil }
+//        return try? JSONEncoder().encode(days)
+//    }
+//    
+//    override func reverseTransformedValue(_ value: Any?) -> Any? {
+//        guard
+//            let data = value as? NSData,
+//            let decoded = try? JSONDecoder().decode([Week].self, from: data as Data)
+//        else { return nil }
+//        return Set(decoded)
+//    }
+//    
+//    static func register() {
+//        ValueTransformer.setValueTransformer(
+//            DaysValueTransformer(),
+//            forName: NSValueTransformerName(rawValue: String(describing: DaysValueTransformer.self))
+//        )
+//    }
+//}
 @objc
 final class DaysValueTransformer: ValueTransformer {
     override class func transformedValueClass() -> AnyClass {
-        NSData.self
+        NSString.self
     }
     
     override class func allowsReverseTransformation() -> Bool {
@@ -19,21 +49,23 @@ final class DaysValueTransformer: ValueTransformer {
     
     override func transformedValue(_ value: Any?) -> Any? {
         guard let days = value as? Set<Week> else { return nil }
-        return try? JSONEncoder().encode(days)
+        let rawValues = days.map { "\($0.rawValue)" }.sorted()
+        let string = rawValues.joined(separator: ",")
+        return string.data(using: .utf8)
     }
-    
+
     override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard
-            let data = value as? NSData,
-            let decoded = try? JSONDecoder().decode([Week].self, from: data as Data)
-        else { return nil }
-        return Set(decoded)
+        guard let data = value as? Data,
+              let string = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        let components = string.split(separator: ",").compactMap { Int($0) }
+        let weeks = components.compactMap { Week(rawValue: $0) }
+        return Set(weeks)
     }
     
     static func register() {
-        ValueTransformer.setValueTransformer(
-            DaysValueTransformer(),
-            forName: NSValueTransformerName(rawValue: String(describing: DaysValueTransformer.self))
-        )
+        let name = NSValueTransformerName(rawValue: String(describing: DaysValueTransformer.self))
+        ValueTransformer.setValueTransformer(DaysValueTransformer(), forName: name)
     }
 }

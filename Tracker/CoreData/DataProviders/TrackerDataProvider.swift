@@ -9,8 +9,10 @@ import UIKit
 import CoreData
 
 struct TrackerStoreUpdate {
-    let insertedIndexes: IndexSet
-    let deletedIndexes: IndexSet
+    let insertedIndexPaths: [IndexPath]
+    let deletedIndexPaths: [IndexPath]
+    let insertedSections: IndexSet
+    let deletedSections: IndexSet
 }
 
 protocol TrackerDataProviderDelegate: AnyObject {
@@ -19,10 +21,13 @@ protocol TrackerDataProviderDelegate: AnyObject {
 
 protocol TrackerDataProviderProtocol {
     var numberOfSections: Int { get }
-    func setupFetchedResultsController(filterDate: Date?, searchText: String?)
+    var trackers: [Tracker] { get }
+    var categoriesCount: Int { get }
+    func updateFilter(currentDate: Date, searchText: String?)
     func numbersOfRowsInSections(in section: Int) -> Int
     func tracker(at indexPath: IndexPath) -> Tracker?
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws
+    func nameOfSection(_ section: Int) -> String
 }
 
 final class TrackerDataProvider: NSObject {
@@ -30,10 +35,28 @@ final class TrackerDataProvider: NSObject {
     
     private let context: NSManagedObjectContext
     private let dataStore: TrackerStoreProtocol
-    private var insertedIndexes: IndexSet?
-    private var deletedIndexes: IndexSet?
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>?
+    private var insertedIndexPaths: [IndexPath] = []
+    private var deletedIndexPaths: [IndexPath] = []
+    private var insertedSections: IndexSet = []
+    private var deletedSections: IndexSet = []
     private let categoryProvider: TrackerCategoryProviderProtocol
+    
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        let controller = NSFetchedResultsController(
+                        fetchRequest: fetchRequest,
+                        managedObjectContext: context,
+                        sectionNameKeyPath: "category.name",
+                        cacheName: nil
+                    )
+        
+        controller.delegate = self
+        
+        try? controller.performFetch()
+        
+        return controller
+    }()
     
     init(_ store: TrackerStoreProtocol, delegate: TrackerDataProviderDelegate) throws {
         guard let context = store.managedObjectContext else {
@@ -62,60 +85,64 @@ private extension TrackerDataProvider {
 // MARK: - TrackerDataProviderProtocol
 extension TrackerDataProvider: TrackerDataProviderProtocol {
     var numberOfSections: Int {
-        fetchedResultsController?.sections?.count ?? 0
+        fetchedResultsController.sections?.count ?? 0
     }
     
-    func setupFetchedResultsController(filterDate: Date?, searchText: String?) {
-        let fetchRequest = TrackerCoreData.fetchRequest()
-        
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-        
+    var trackers: [Tracker] {
+        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
+        return objects.map(modelFrom(object:))
+    }
+    
+    var categoriesCount: Int {
+        categoryProvider.categories.count
+    }
+    
+    func updateFilter(currentDate: Date, searchText: String?) {
+
         var predicates: [NSPredicate] = []
 
-        if let search = searchText, !search.isEmpty {
-            predicates.append(NSPredicate(format: "name CONTAINS[cd] %@", search))
+        if let searchText = searchText, !searchText.isEmpty {
+            predicates.append(NSPredicate(format: "name CONTAINS[cd] %@", searchText))
         }
 
-        if let date = filterDate {
-            let weekday = Calendar.current.component(.weekday, from: date)
-            let datePredicate = NSPredicate(format: "ANY schedule.weekday == %d OR schedule.@count == 0", weekday)
-            predicates.append(datePredicate)
-        }
+        let weekday = Calendar.current.component(.weekday, from: currentDate)
+        let weekdayStr = "\(weekday)"
+        let datePredicate = NSPredicate(format: "schedule CONTAINS[c] %@ OR schedule == nil", weekdayStr)
+        predicates.append(datePredicate)
 
-        fetchRequest.predicate = predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        
-        fetchedResultsController = NSFetchedResultsController(
-            fetchRequest: fetchRequest,
-            managedObjectContext: context,
-            sectionNameKeyPath: "category.name",
-            cacheName: nil
-        )
-        
-        fetchedResultsController?.delegate = self
-        
+        fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+
         do {
-            try fetchedResultsController?.performFetch()
-            delegate?.didUpdateTrackers(TrackerStoreUpdate(insertedIndexes: [], deletedIndexes: []))
+            try fetchedResultsController.performFetch()
+            let update = TrackerStoreUpdate(
+                insertedIndexPaths: insertedIndexPaths,
+                deletedIndexPaths: deletedIndexPaths,
+                insertedSections: insertedSections,
+                deletedSections: deletedSections
+            )
+            delegate?.didUpdateTrackers(update)
         } catch {
-            print("Failed to perform fetch: \(error)")
+            print("Failed to perform fetch with updated predicate: \(error)")
         }
     }
     
     func numbersOfRowsInSections(in section: Int) -> Int {
-        guard let sections = fetchedResultsController?.sections else { return 0 }
+        guard let sections = fetchedResultsController.sections else { return 0 }
         return sections[section].numberOfObjects
     }
     
     func tracker(at indexPath: IndexPath) -> Tracker? {
-        guard let object = fetchedResultsController?.object(at: indexPath) else { return nil }
+        let object = fetchedResultsController.object(at: indexPath)
         return modelFrom(object: object)
     }
     
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws {
-        //        try dataStore.addNewTracker(tracker, category: category)
         let categoryEntity = try categoryProvider.fetchOrCreateCategory(from: category)
         try dataStore.addNewTracker(tracker, categoryEntity: categoryEntity)
-        setupFetchedResultsController(filterDate: nil, searchText: nil)
+    }
+    
+    func nameOfSection(_ section: Int) -> String {
+        fetchedResultsController.sections?[section].name ?? ""
     }
 }
 
@@ -123,14 +150,41 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
 // MARK: - NSFetchedResultsControllerDelegate
 extension TrackerDataProvider: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        insertedIndexes = IndexSet()
-        deletedIndexes = IndexSet()
+        insertedIndexPaths = []
+        deletedIndexPaths = []
+        insertedSections = []
+        deletedSections = []
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        guard let insertedIndexes = insertedIndexes, let deletedIndexes = deletedIndexes else { return }
-        delegate?.didUpdateTrackers(TrackerStoreUpdate(insertedIndexes: insertedIndexes, deletedIndexes: deletedIndexes))
+        let update = TrackerStoreUpdate(
+            insertedIndexPaths: insertedIndexPaths,
+            deletedIndexPaths: deletedIndexPaths,
+            insertedSections: insertedSections,
+            deletedSections: deletedSections
+        )
+        delegate?.didUpdateTrackers(update)
+        insertedIndexPaths = []
+        deletedIndexPaths = []
+        insertedSections = []
+        deletedSections = []
     }
+    
+    func controller(
+            _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+            didChange sectionInfo: NSFetchedResultsSectionInfo,
+            atSectionIndex sectionIndex: Int,
+            for type: NSFetchedResultsChangeType
+        ) {
+            switch type {
+            case .insert:
+                insertedSections.insert(sectionIndex)
+            case .delete:
+                deletedSections.insert(sectionIndex)
+            default:
+                break
+            }
+        }
     
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
@@ -142,11 +196,11 @@ extension TrackerDataProvider: NSFetchedResultsControllerDelegate {
         switch type {
         case .insert:
             if let newIndexPath = newIndexPath {
-                insertedIndexes?.insert(newIndexPath.row)
+                insertedIndexPaths.append(newIndexPath)
             }
         case .delete:
             if let indexPath = indexPath {
-                deletedIndexes?.insert(indexPath.row)
+                deletedIndexPaths.append(indexPath)
             }
         default:
             break

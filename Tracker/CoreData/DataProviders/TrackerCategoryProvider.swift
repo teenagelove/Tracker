@@ -8,6 +8,7 @@
 import CoreData
 
 protocol TrackerCategoryProviderProtocol {
+    var categories: [String] { get }
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
 }
 
@@ -27,6 +28,10 @@ final class TrackerCategoryProvider {
 
 // MARK: - TrackerCategoryProviderProtocol
 extension TrackerCategoryProvider: TrackerCategoryProviderProtocol {
+    var categories: [String] {
+        store.categories.map { $0.name ?? "" }
+    }
+    
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData {
         try store.fetchOrCreateCategory(from: category)
     }

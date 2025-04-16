@@ -57,6 +57,8 @@ final class TrackerViewController: UIViewController {
     
     // MARK: - Properties
     private var completedTrackers: Set<TrackerRecord> = []
+    private var trackerProvider: TrackerDataProviderProtocol?
+    
     
     private var categories: [TrackerCategory] = [] {
         didSet {
@@ -72,7 +74,7 @@ final class TrackerViewController: UIViewController {
     
     private var currentDate = Date() {
         didSet {
-            filterTrackers()
+            filterTrackers2()
         }
     }
     
@@ -80,6 +82,8 @@ final class TrackerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        trackerProvider = try? TrackerDataProvider(TrackerStore(), delegate: self)
+        filterTrackers2()
     }
 }
 
@@ -103,6 +107,12 @@ private extension TrackerViewController {
 
 // MARK: - Private Methods
 private extension TrackerViewController {
+    func filterTrackers2() {
+        let text = navigationItem.searchController?.searchBar.text ?? ""
+        trackerProvider?.updateFilter(currentDate: currentDate, searchText: text)
+        updateEmptyStateVisibility()
+    }
+    
     func filterTrackers() {
         let day = Calendar.current.component(.weekday, from: currentDate)
         let searchBarText = navigationItem.searchController?.searchBar.text ?? ""
@@ -140,11 +150,22 @@ private extension TrackerViewController {
     }
     
     func updateEmptyStateVisibility() {
-        if categories.isEmpty {
+//        if categories.isEmpty {
+//            emptyStateLabel.text = Constants.UIString.emptyStateLabel
+//            emptyStateImageView.image = .emptyStateStub
+//            emptyStateStackView.isHidden = false
+//        } else if visibleCategories.isEmpty {
+//            emptyStateLabel.text = Constants.UIString.notFound
+//            emptyStateImageView.image = .emptyFilter
+//            emptyStateStackView.isHidden = false
+//        } else {
+//            emptyStateStackView.isHidden = true
+//        }
+        if trackerProvider?.categoriesCount == 0 {
             emptyStateLabel.text = Constants.UIString.emptyStateLabel
             emptyStateImageView.image = .emptyStateStub
             emptyStateStackView.isHidden = false
-        } else if visibleCategories.isEmpty {
+        } else if trackerProvider?.trackers.isEmpty == true {
             emptyStateLabel.text = Constants.UIString.notFound
             emptyStateImageView.image = .emptyFilter
             emptyStateStackView.isHidden = false
@@ -226,23 +247,23 @@ private extension TrackerViewController {
 // MARK: - UICollectionViewDataSource
 extension TrackerViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        visibleCategories.count
+        trackerProvider?.numberOfSections ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        visibleCategories[section].trackers.count
+        // TODO: - Change Name
+        trackerProvider?.numbersOfRowsInSections(in: section) ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard
+            let tracker = trackerProvider?.tracker(at: indexPath),
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
                 for: indexPath
             ) as? TrackerCollectionViewCell
         else { return TrackerCollectionViewCell() }
-        
-        let tracker = visibleCategories[indexPath.section].trackers[indexPath.row]
-        
+
         let trackerViewModel = TrackerViewModel(
             tracker: tracker,
             isCompletedToday: isTrackerCompletedToday(id: tracker.id),
@@ -255,14 +276,16 @@ extension TrackerViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        guard let view = collectionView.dequeueReusableSupplementaryView(
+        guard
+            let header = trackerProvider?.nameOfSection(indexPath.section),
+            let view = collectionView.dequeueReusableSupplementaryView(
             ofKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: SupplementaryView.reuseIdentifier,
             for: indexPath
         ) as? SupplementaryView
         else { return SupplementaryView() }
         
-        view.configure(visibleCategories[indexPath.section].name)
+        view.configure(header)
         return view
     }
 }
@@ -300,23 +323,23 @@ extension TrackerViewController: TrackerViewControllerDelegate {
            categories.append(newCategory)
            visibleCategories = categories
            
-            collectionView.performBatchUpdates {
-                collectionView.insertSections(IndexSet(integer: 0))
-            }
+//            collectionView.performBatchUpdates {
+//                collectionView.insertSections(IndexSet(integer: 0))
+//            }
         }
         
-        var category = categories[0]
-        var updatedTrackers = category.trackers
+        let category = categories[0]
+//        var updatedTrackers = category.trackers
+//        
+//        updatedTrackers.append(tracker)
+//        category = TrackerCategory(name: category.name, trackers: updatedTrackers)
+//        categories[0] = category
+//        
+//        filterTrackers()
         
-        updatedTrackers.append(tracker)
-        category = TrackerCategory(name: category.name, trackers: updatedTrackers)
-        categories[0] = category
         
-        filterTrackers()
-        
-        let provider = try? TrackerDataProvider(TrackerStore(), delegate: self)
-        
-        try? provider?.addNewTracker(tracker: tracker, category: category)
+        try? trackerProvider?.addNewTracker(tracker: tracker, category: category)
+        filterTrackers2()
     }
 }
 
@@ -345,18 +368,32 @@ extension TrackerViewController: TrackerCellDelegate {
 // MARK: - UISearchBarDelegate
 extension TrackerViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterTrackers()
+        filterTrackers2()
     }
         
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
-        filterTrackers()
+        filterTrackers2()
     }
 }
 
 // MARK: - TrackerDataProviderDelegate
 extension TrackerViewController: TrackerDataProviderDelegate {
     func didUpdateTrackers(_ update: TrackerStoreUpdate) {
-        //
+        if update.insertedIndexPaths.isEmpty &&
+               update.deletedIndexPaths.isEmpty &&
+               update.insertedSections.isEmpty &&
+               update.deletedSections.isEmpty {
+            
+                collectionView.reloadData()
+                return
+            }
+            
+        collectionView.performBatchUpdates {
+            collectionView.deleteItems(at: update.deletedIndexPaths)
+            collectionView.insertItems(at: update.insertedIndexPaths)
+            collectionView.deleteSections(update.deletedSections)
+            collectionView.insertSections(update.insertedSections)
+        }
     }
 }

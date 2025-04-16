@@ -9,6 +9,7 @@ import Foundation
 import CoreData
 
 protocol TrackerCategoryStoreProtocol {
+    var categories: [TrackerCategoryCoreData] { get }
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
 }
 
@@ -26,6 +27,16 @@ final class TrackerCategoryStore {
 
 // MARK: - TrackerCategoryStoreProtocol
 extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
+    var categories: [TrackerCategoryCoreData] {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("Failed to fetch categories: \(error)")
+            return []
+        }
+    }
+    
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", category.name)
