@@ -56,10 +56,13 @@ final class TrackerViewController: UIViewController {
     }()
     
     // MARK: - Properties
+    private lazy var trackerProvider: TrackerDataProviderProtocol? = {
+        let trackerStore = TrackerStore()
+        return try? TrackerDataProvider(trackerStore, delegate: self)
+    }()
+    
     private var completedTrackers: Set<TrackerRecord> = []
-    private var trackerProvider: TrackerDataProviderProtocol?
-    
-    
+   
     private var categories: [TrackerCategory] = [] {
         didSet {
             updateEmptyStateVisibility()
@@ -82,7 +85,6 @@ final class TrackerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        trackerProvider = try? TrackerDataProvider(TrackerStore(), delegate: self)
         filterTrackers2()
     }
 }
