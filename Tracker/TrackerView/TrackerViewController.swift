@@ -112,7 +112,15 @@ private extension TrackerViewController {
                 let textCondition = searchBarText.isEmpty || tracker.name.lowercased().contains(searchBarText.lowercased())
                 
                 var dateCondition: Bool {
-                    tracker.schedule.isEmpty || tracker.schedule.contains { $0.rawValue == day }
+                    if tracker.schedule.isEmpty {
+                        let completions = completedTrackers.filter { $0.id == tracker.id }
+
+                        return completions.isEmpty || completions.contains {
+                            Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+                        }
+                    } else {
+                        return tracker.schedule.contains { $0.rawValue == day }
+                    }
                 }
                 
                 return textCondition && dateCondition
