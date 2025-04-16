@@ -131,7 +131,7 @@ private extension TrackerViewController {
             }
             
             return TrackerCategory(
-                header: category.header,
+                name: category.name,
                 trackers: trackers
             )
         }
@@ -262,7 +262,7 @@ extension TrackerViewController: UICollectionViewDataSource {
         ) as? SupplementaryView
         else { return SupplementaryView() }
         
-        view.configure(visibleCategories[indexPath.section].header)
+        view.configure(visibleCategories[indexPath.section].name)
         return view
     }
 }
@@ -296,7 +296,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 extension TrackerViewController: TrackerViewControllerDelegate {
     func didReceiveNewTracker(tracker: Tracker) {
         if categories.isEmpty {
-           let newCategory = TrackerCategory(header: "Пивная", trackers: [])
+           let newCategory = TrackerCategory(name: "Пивная", trackers: [])
            categories.append(newCategory)
            visibleCategories = categories
            
@@ -309,7 +309,7 @@ extension TrackerViewController: TrackerViewControllerDelegate {
         var updatedTrackers = category.trackers
         
         updatedTrackers.append(tracker)
-        category = TrackerCategory(header: category.header, trackers: updatedTrackers)
+        category = TrackerCategory(name: category.name, trackers: updatedTrackers)
         categories[0] = category
         
         filterTrackers()
