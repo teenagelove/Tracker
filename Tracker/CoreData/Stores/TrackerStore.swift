@@ -5,46 +5,46 @@
 //  Created by Danil Kazakov on 13.04.2025.
 //
 
-import UIKit
+import Foundation
 import CoreData
 
+
 protocol TrackerStoreProtocol {
-    var managedObjectContext: NSManagedObjectContext { get }
-    
+    var managedObjectContext: NSManagedObjectContext? { get }
+    func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws
 }
 
 final class TrackerStore {
     private var context: NSManagedObjectContext
+    private let categoryStore: TrackerCategoryStoreProtocol
     
     init(context: NSManagedObjectContext) {
         self.context = context
+        self.categoryStore = TrackerCategoryStore(context: context)
     }
     
     convenience init() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            fatalError("Unable to get AppDelegate")
-        }
-        let context = appDelegate.persistentContainer.viewContext
-        self.init(context: context)
+        self.init(context: DataStoreManager.shared.viewContext)
+    }
+}
+
+
+// MARK: - TrackerStoreProtocol
+extension TrackerStore: TrackerStoreProtocol {
+    var managedObjectContext: NSManagedObjectContext? {
+        context
     }
     
-    func addNewTracker(tracker: Tracker) {
+    func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = tracker.id
         trackerEntity.name = tracker.name
         trackerEntity.emoji = tracker.emoji
         trackerEntity.color = tracker.color
-        saveContext()
-    }
-    
-    func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                context.rollback()
-                print("Failed to save emoji mix: \(error)")
-            }
-        }
+        trackerEntity.schedule = tracker.schedule as NSSet
+        trackerEntity.createdAt = Date()
+        trackerEntity.category = categoryEntity
+        
+        DataStoreManager.shared.saveContext()
     }
 }

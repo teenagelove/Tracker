@@ -15,11 +15,11 @@ final class TrackerRecordStore {
         self.context = context
     }
     
-    convenience init() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            fatalError("Unable to get AppDelegate")
-        }
-        let context = appDelegate.persistentContainer.viewContext
-        self.init(context: context)
-    }
+//    convenience init() {
+//        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+//            fatalError("Unable to get AppDelegate")
+//        }
+//        let context = appDelegate.persistentContainer.viewContext
+//        self.init(context: context)
+//    }
 }

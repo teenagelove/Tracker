@@ -5,21 +5,40 @@
 //  Created by Danil Kazakov on 13.04.2025.
 //
 
-import UIKit
+import Foundation
 import CoreData
 
+protocol TrackerCategoryStoreProtocol {
+    func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
+}
+
 final class TrackerCategoryStore {
-    private var context: NSManagedObjectContext
-    
+    private let context: NSManagedObjectContext
+
     init(context: NSManagedObjectContext) {
         self.context = context
     }
     
     convenience init() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            fatalError("Unable to get AppDelegate")
+        self.init(context: DataStoreManager.shared.viewContext)
+    }
+}
+
+// MARK: - TrackerCategoryStoreProtocol
+extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
+    func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "name == %@", category.name)
+        request.fetchLimit = 1
+
+        let results = try context.fetch(request)
+
+        if let existing = results.first {
+            return existing
+        } else {
+            let newCategory = TrackerCategoryCoreData(context: context)
+            newCategory.name = category.name
+            return newCategory
         }
-        let context = appDelegate.persistentContainer.viewContext
-        self.init(context: context)
     }
 }

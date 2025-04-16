@@ -313,6 +313,10 @@ extension TrackerViewController: TrackerViewControllerDelegate {
         categories[0] = category
         
         filterTrackers()
+        
+        let provider = try? TrackerDataProvider(TrackerStore(), delegate: self)
+        
+        try? provider?.addNewTracker(tracker: tracker, category: category)
     }
 }
 
@@ -347,5 +351,12 @@ extension TrackerViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         filterTrackers()
+    }
+}
+
+// MARK: - TrackerDataProviderDelegate
+extension TrackerViewController: TrackerDataProviderDelegate {
+    func didUpdateTrackers(_ update: TrackerStoreUpdate) {
+        //
     }
 }
