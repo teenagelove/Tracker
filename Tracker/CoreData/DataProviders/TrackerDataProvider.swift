@@ -28,6 +28,7 @@ protocol TrackerDataProviderProtocol {
     func trackerCoreData(by id: UUID) -> TrackerCoreData?
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws
     func nameOfSection(_ section: Int) -> String
+    func toggleDelegate()
 }
 
 final class TrackerDataProvider: NSObject {
@@ -97,15 +98,29 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
             predicates.append(NSPredicate(format: "name CONTAINS[cd] %@", searchText))
         }
 
-        let weekday = Calendar.current.component(.weekday, from: currentDate)
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: currentDate)
         let weekdayStr = "\(weekday)"
+        
+        let startOfDay = calendar.startOfDay(for: currentDate)
+        let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
 
-        let schedulePredicate = NSPredicate(format: "schedule CONTAINS[c] %@ OR schedule == nil", weekdayStr)
-
-        predicates.append(schedulePredicate)
+        let eventDisplayPredicate = NSPredicate(
+            format: """
+            (schedule != nil AND schedule CONTAINS[c] %@) OR
+            (schedule == nil AND (
+                SUBQUERY(records, $r, $r.tracker == SELF).@count == 0 OR
+                SUBQUERY(records, $r, $r.date >= %@ AND $r.date < %@).@count > 0
+            ))
+            """,
+            weekdayStr,
+            startOfDay as NSDate,
+            startOfNextDay as NSDate
+        )
+        predicates.append(eventDisplayPredicate)
 
         fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        
+
         do {
             try fetchedResultsController.performFetch()
             let update = TrackerStoreUpdate(
@@ -141,6 +156,10 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
     
     func nameOfSection(_ section: Int) -> String {
         fetchedResultsController.sections?[section].name ?? ""
+    }
+    
+    func toggleDelegate() {
+        fetchedResultsController.delegate = (fetchedResultsController.delegate === self) ? nil : self
     }
 }
 

@@ -27,7 +27,6 @@ final class DataStoreManager {
             if let error = error as? NSError {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-            print(storeDescription.url!)
         })
         return container
     }()

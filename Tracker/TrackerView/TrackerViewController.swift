@@ -75,7 +75,7 @@ final class TrackerViewController: UIViewController {
     
     private var currentDate = Date() {
         didSet {
-            filterTrackers2()
+            filterTrackers()
         }
     }
     
@@ -83,7 +83,7 @@ final class TrackerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        filterTrackers2()
+        filterTrackers()
     }
 }
 
@@ -107,47 +107,11 @@ private extension TrackerViewController {
 
 // MARK: - Private Methods
 private extension TrackerViewController {
-    func filterTrackers2() {
+    func filterTrackers() {
         let text = navigationItem.searchController?.searchBar.text ?? ""
         trackerProvider?.updateFilter(currentDate: currentDate, searchText: text)
         updateEmptyStateVisibility()
     }
-    
-//    func filterTrackers() {
-//        let day = Calendar.current.component(.weekday, from: currentDate)
-//        let searchBarText = navigationItem.searchController?.searchBar.text ?? ""
-//        
-//        visibleCategories = categories.compactMap { category in
-//            let trackers = category.trackers.filter { tracker in
-//                let textCondition = searchBarText.isEmpty || tracker.name.lowercased().contains(searchBarText.lowercased())
-//                
-//                var dateCondition: Bool {
-//                    if tracker.schedule.isEmpty {
-//                        let completions = completedTrackers.filter { $0.id == tracker.id }
-//                        
-//                        return completions.isEmpty || completions.contains {
-//                            Calendar.current.isDate($0.date, inSameDayAs: currentDate)
-//                        }
-//                    } else {
-//                        return tracker.schedule.contains { $0.rawValue == day }
-//                    }
-//                }
-//                
-//                return textCondition && dateCondition
-//            }
-//            
-//            if trackers.isEmpty {
-//                return nil
-//            }
-//            
-//            return TrackerCategory(
-//                name: category.name,
-//                trackers: trackers
-//            )
-//        }
-//        
-//        collectionView.reloadData()
-//    }
     
     func updateEmptyStateVisibility() {
         if categoryProvider?.categories.count == 0 {
@@ -318,7 +282,7 @@ extension TrackerViewController: TrackerViewControllerDelegate {
             try? trackerProvider?.addNewTracker(tracker: tracker, category: category)
         }
         
-        filterTrackers2()
+        filterTrackers()
     }
 }
 
@@ -348,12 +312,12 @@ extension TrackerViewController: TrackerCellDelegate {
 // MARK: - UISearchBarDelegate
 extension TrackerViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterTrackers2()
+        filterTrackers()
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
-        filterTrackers2()
+        filterTrackers()
     }
 }
 

@@ -35,11 +35,18 @@ extension TrackerRecordDataProvider: TrackerRecordDataProviderProtocol {
         else {
             throw TrackerRecordStoreError.decodingErrorInvalidTrackerID
         }
+        // TODO:  Если задать records.tracker, то это вызовет обновление в fetchedResultsController
+        // Из-за этого начинает криво работать коллекция, как обойти - не придумал.
+        // Использую хот-фикс как выключение делегата, чтобы не было обновления.
+        provider.toggleDelegate()
         try dataStore.addTrackerRecord(trackerRecord, tracker: tracker)
+        provider.toggleDelegate()
     }
     
     func removeTrackerRecord(_ trackerRecord: TrackerRecord) throws {
+        provider.toggleDelegate()
         try dataStore.removeTrackerRecord(trackerRecord)
+        provider.toggleDelegate()
     }
     
     func isTrackerCompletedToday(id: UUID, date: Date) -> Bool {

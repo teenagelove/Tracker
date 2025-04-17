@@ -42,9 +42,7 @@ extension TrackerRecordStore {
         let recordCoreData = TrackerRecordCoreData(context: context)
         recordCoreData.id = trackerRecord.id
         recordCoreData.date = trackerRecord.date
-        // TODO:  Если здесь задать трекер, то это вызовет обновление в fetchedResultsController
-        // Из-за этого начинает криво работать коллекция, как обойти - не придумал.
-//        recordCoreData.tracker = tracker
+        recordCoreData.tracker = tracker
         
         DataStoreManager.shared.saveContext()
     }
@@ -78,7 +76,6 @@ extension TrackerRecordStore {
             startOfDay as NSDate,
             endOfDay as NSDate
         )
-        fetchRequest.fetchLimit = 1
         
         return try context.fetch(fetchRequest)
     }
