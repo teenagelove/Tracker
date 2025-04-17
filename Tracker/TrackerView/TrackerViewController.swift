@@ -274,13 +274,12 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
     func didReceiveNewTracker(tracker: Tracker) {
-        if categoryProvider?.categories.count == 0 {
-            let newCategory = TrackerCategory(name: "Пивная", trackers: [])
-            try? trackerProvider?.addNewTracker(tracker: tracker, category: newCategory)
-        } else {
-            let category = TrackerCategory(name: trackerProvider?.nameOfSection(0) ?? "Пивная", trackers: [])
-            try? trackerProvider?.addNewTracker(tracker: tracker, category: category)
-        }
+        let defaultCategoryName = "Пивная"
+        
+        let categoryName = categoryProvider?.categories.first ?? defaultCategoryName
+        let category = TrackerCategory(name: categoryName, trackers: [])
+        
+        try? trackerProvider?.addNewTracker(tracker: tracker, category: category)
         
         filterTrackers()
     }
