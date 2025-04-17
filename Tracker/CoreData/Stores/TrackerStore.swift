@@ -10,8 +10,9 @@ import CoreData
 
 
 protocol TrackerStoreProtocol {
-    var managedObjectContext: NSManagedObjectContext? { get }
+//    var managedObjectContext: NSManagedObjectContext? { get }
     func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws
+    func getTrackerById(by id: UUID) -> TrackerCoreData?
 }
 
 final class TrackerStore {
@@ -31,9 +32,9 @@ final class TrackerStore {
 
 // MARK: - TrackerStoreProtocol
 extension TrackerStore: TrackerStoreProtocol {
-    var managedObjectContext: NSManagedObjectContext? {
-        context
-    }
+//    var managedObjectContext: NSManagedObjectContext? {
+//        context
+//    }
     
     func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws {
         let trackerEntity = TrackerCoreData(context: context)
@@ -44,6 +45,20 @@ extension TrackerStore: TrackerStoreProtocol {
         trackerEntity.schedule = tracker.schedule as NSSet
         trackerEntity.createdAt = Date()
         trackerEntity.category = categoryEntity
+        
         DataStoreManager.shared.saveContext()
+    }
+    
+    func getTrackerById(by id: UUID) -> TrackerCoreData? {
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first
+        } catch {
+            print("Failed to fetch tracker: \(error)")
+            return nil
+        }
     }
 }
