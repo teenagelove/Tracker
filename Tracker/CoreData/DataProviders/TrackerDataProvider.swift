@@ -60,9 +60,6 @@ final class TrackerDataProvider: NSObject {
     }()
     
     init(_ store: TrackerStoreProtocol, delegate: TrackerDataProviderDelegate) throws {
-        //        guard let context = DataStoreManager.shared.viewContext else {
-        //            throw DataStoreError.contextNotFound
-        //        }
         self.context = DataStoreManager.shared.viewContext
         self.delegate = delegate
         dataStore = store

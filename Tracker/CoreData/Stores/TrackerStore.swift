@@ -45,7 +45,6 @@ extension TrackerStore: TrackerStoreProtocol {
         trackerEntity.schedule = tracker.schedule as NSSet
         trackerEntity.createdAt = Date()
         trackerEntity.category = categoryEntity
-        
         DataStoreManager.shared.saveContext()
     }
     

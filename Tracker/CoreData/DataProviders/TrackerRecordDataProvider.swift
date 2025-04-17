@@ -13,7 +13,6 @@ protocol TrackerRecordDataProviderProtocol {
     func removeTrackerRecord(_ trackerRecord: TrackerRecord) throws
     func isTrackerCompletedToday(id: UUID, date: Date) -> Bool
     func completedTrackersCount(for trackerId: UUID) -> Int
-//    func fetchCompletedTrackerRecords(for trackerId: UUID) throws -> [TrackerRecord]
 }
 
 final class TrackerRecordDataProvider: NSObject {
@@ -22,9 +21,6 @@ final class TrackerRecordDataProvider: NSObject {
     private let provider: TrackerDataProviderProtocol
     
     init(_ store: TrackerRecordStoreProtocol, trackerProvider: TrackerDataProviderProtocol) throws {
-//        guard let context = store.managedObjectContext else {
-//            throw DataStoreError.contextNotFound
-//        }
         self.context = DataStoreManager.shared.viewContext
         dataStore = store
         provider = trackerProvider

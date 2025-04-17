@@ -84,7 +84,6 @@ final class TrackerViewController: UIViewController {
     private var currentDate = Date() {
         didSet {
             filterTrackers2()
-            print("DATA CHANGED \(currentDate)")
         }
     }
     
