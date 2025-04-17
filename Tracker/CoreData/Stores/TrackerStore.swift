@@ -10,7 +10,6 @@ import CoreData
 
 
 protocol TrackerStoreProtocol {
-//    var managedObjectContext: NSManagedObjectContext? { get }
     func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws
     func getTrackerById(by id: UUID) -> TrackerCoreData?
 }
@@ -32,10 +31,6 @@ final class TrackerStore {
 
 // MARK: - TrackerStoreProtocol
 extension TrackerStore: TrackerStoreProtocol {
-//    var managedObjectContext: NSManagedObjectContext? {
-//        context
-//    }
-    
     func addNewTracker(_ tracker: Tracker, categoryEntity: TrackerCategoryCoreData) throws {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = tracker.id

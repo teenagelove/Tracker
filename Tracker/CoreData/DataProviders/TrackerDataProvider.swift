@@ -22,7 +22,6 @@ protocol TrackerDataProviderDelegate: AnyObject {
 protocol TrackerDataProviderProtocol {
     var numberOfSections: Int { get }
     var trackers: [Tracker] { get }
-    var categoriesCount: Int { get }
     func updateFilter(currentDate: Date, searchText: String?)
     func numbersOfRowsInSections(in section: Int) -> Int
     func tracker(at indexPath: IndexPath) -> Tracker?
@@ -40,7 +39,7 @@ final class TrackerDataProvider: NSObject {
     private var deletedIndexPaths: [IndexPath] = []
     private var insertedSections: IndexSet = []
     private var deletedSections: IndexSet = []
-    private let categoryProvider: TrackerCategoryProviderProtocol
+    private let categoryProvider: TrackerCategoryDataProviderProtocol
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = TrackerCoreData.fetchRequest()
@@ -59,11 +58,11 @@ final class TrackerDataProvider: NSObject {
         return controller
     }()
     
-    init(_ store: TrackerStoreProtocol, delegate: TrackerDataProviderDelegate) throws {
+    init(_ store: TrackerStoreProtocol, categoryProvider: TrackerCategoryDataProviderProtocol, delegate: TrackerDataProviderDelegate) throws {
         self.context = DataStoreManager.shared.viewContext
         self.delegate = delegate
         dataStore = store
-        categoryProvider = TrackerCategoryProvider()
+        self.categoryProvider = categoryProvider
     }
 }
 
@@ -89,10 +88,6 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
     var trackers: [Tracker] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.map(modelFrom(object:))
-    }
-    
-    var categoriesCount: Int {
-        categoryProvider.categories.count
     }
     
     func updateFilter(currentDate: Date, searchText: String?) {

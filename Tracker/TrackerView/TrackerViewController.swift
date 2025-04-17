@@ -57,8 +57,9 @@ final class TrackerViewController: UIViewController {
     
     // MARK: - Properties
     private lazy var trackerProvider: TrackerDataProviderProtocol? = {
+        guard let categoryProvider else { return nil }
         let trackerStore = TrackerStore()
-        return try? TrackerDataProvider(trackerStore, delegate: self)
+        return try? TrackerDataProvider(trackerStore, categoryProvider: categoryProvider, delegate: self)
     }()
     
     private lazy var recordProvider: TrackerRecordDataProviderProtocol? = {
@@ -67,19 +68,10 @@ final class TrackerViewController: UIViewController {
         return try? TrackerRecordDataProvider(recordStore, trackerProvider: trackerProvider)
     }()
     
-    private var completedTrackers: Set<TrackerRecord> = []
-    
-    private var categories: [TrackerCategory] = [] {
-        didSet {
-            updateEmptyStateVisibility()
-        }
-    }
-    
-    private lazy var visibleCategories: [TrackerCategory] = categories {
-        didSet {
-            updateEmptyStateVisibility()
-        }
-    }
+    private lazy var categoryProvider: TrackerCategoryDataProviderProtocol? = {
+        let categoryStore = TrackerCategoryStore()
+        return try? TrackerCategoryDataProvider(categoryStore)
+    }()
     
     private var currentDate = Date() {
         didSet {
@@ -121,44 +113,44 @@ private extension TrackerViewController {
         updateEmptyStateVisibility()
     }
     
-    func filterTrackers() {
-        let day = Calendar.current.component(.weekday, from: currentDate)
-        let searchBarText = navigationItem.searchController?.searchBar.text ?? ""
-        
-        visibleCategories = categories.compactMap { category in
-            let trackers = category.trackers.filter { tracker in
-                let textCondition = searchBarText.isEmpty || tracker.name.lowercased().contains(searchBarText.lowercased())
-                
-                var dateCondition: Bool {
-                    if tracker.schedule.isEmpty {
-                        let completions = completedTrackers.filter { $0.id == tracker.id }
-                        
-                        return completions.isEmpty || completions.contains {
-                            Calendar.current.isDate($0.date, inSameDayAs: currentDate)
-                        }
-                    } else {
-                        return tracker.schedule.contains { $0.rawValue == day }
-                    }
-                }
-                
-                return textCondition && dateCondition
-            }
-            
-            if trackers.isEmpty {
-                return nil
-            }
-            
-            return TrackerCategory(
-                name: category.name,
-                trackers: trackers
-            )
-        }
-        
-        collectionView.reloadData()
-    }
+//    func filterTrackers() {
+//        let day = Calendar.current.component(.weekday, from: currentDate)
+//        let searchBarText = navigationItem.searchController?.searchBar.text ?? ""
+//        
+//        visibleCategories = categories.compactMap { category in
+//            let trackers = category.trackers.filter { tracker in
+//                let textCondition = searchBarText.isEmpty || tracker.name.lowercased().contains(searchBarText.lowercased())
+//                
+//                var dateCondition: Bool {
+//                    if tracker.schedule.isEmpty {
+//                        let completions = completedTrackers.filter { $0.id == tracker.id }
+//                        
+//                        return completions.isEmpty || completions.contains {
+//                            Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+//                        }
+//                    } else {
+//                        return tracker.schedule.contains { $0.rawValue == day }
+//                    }
+//                }
+//                
+//                return textCondition && dateCondition
+//            }
+//            
+//            if trackers.isEmpty {
+//                return nil
+//            }
+//            
+//            return TrackerCategory(
+//                name: category.name,
+//                trackers: trackers
+//            )
+//        }
+//        
+//        collectionView.reloadData()
+//    }
     
     func updateEmptyStateVisibility() {
-       if trackerProvider?.categoriesCount == 0 {
+        if categoryProvider?.categories.count == 0 {
             emptyStateLabel.text = Constants.UIString.emptyStateLabel
             emptyStateImageView.image = .emptyStateStub
             emptyStateStackView.isHidden = false
@@ -318,7 +310,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
     func didReceiveNewTracker(tracker: Tracker) {
-        if trackerProvider?.categoriesCount == 0 {
+        if categoryProvider?.categories.count == 0 {
             let newCategory = TrackerCategory(name: "Пивная", trackers: [])
             try? trackerProvider?.addNewTracker(tracker: tracker, category: newCategory)
         } else {

@@ -7,27 +7,23 @@
 
 import CoreData
 
-protocol TrackerCategoryProviderProtocol {
+protocol TrackerCategoryDataProviderProtocol {
     var categories: [String] { get }
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
 }
 
-final class TrackerCategoryProvider {
+final class TrackerCategoryDataProvider {
     private let context: NSManagedObjectContext
     private let store: TrackerCategoryStoreProtocol
 
-    init(context: NSManagedObjectContext) {
-        self.context = context
-        self.store = TrackerCategoryStore(context: context)
-    }
-    
-    convenience init() {
-        self.init(context: DataStoreManager.shared.viewContext)
+    init(_ store: TrackerCategoryStoreProtocol) throws {
+        self.context = DataStoreManager.shared.viewContext
+        self.store = store
     }
 }
 
 // MARK: - TrackerCategoryProviderProtocol
-extension TrackerCategoryProvider: TrackerCategoryProviderProtocol {
+extension TrackerCategoryDataProvider: TrackerCategoryDataProviderProtocol {
     var categories: [String] {
         store.categories.map { $0.name ?? "" }
     }
