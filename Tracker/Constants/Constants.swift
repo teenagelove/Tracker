@@ -23,5 +23,8 @@ enum Constants {
         static let apply = "Применить"
         static let submit = "Готово"
         static let notFound = "Ничего не найдено"
+        static let emoji = "Emoji"
+        static let color = "Цвет"
+        static let defaultCategory = "Пивная"
     }
 }

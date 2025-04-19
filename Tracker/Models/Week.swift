@@ -5,7 +5,7 @@
 //  Created by Danil Kazakov on 04.04.2025.
 //
 
-enum Week: Int, CaseIterable {
+enum Week: Int, CaseIterable, Codable {
     case monday = 2
     case tuesday = 3
     case wednesday = 4

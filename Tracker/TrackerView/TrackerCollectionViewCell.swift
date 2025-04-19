@@ -38,6 +38,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .little
         label.numberOfLines = 0
+        label.textColor = .ypWhite
         return label
     }()
     
