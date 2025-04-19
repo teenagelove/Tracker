@@ -5,38 +5,34 @@
 //  Created by Danil Kazakov on 13.04.2025.
 //
 
-import Foundation
 import CoreData
 
 protocol TrackerCategoryStoreProtocol {
-    var categories: [TrackerCategoryCoreData] { get }
+    var categories: [String] { get }
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
 }
 
 final class TrackerCategoryStore {
     private let context: NSManagedObjectContext
-
-    init(context: NSManagedObjectContext) {
-        self.context = context
-    }
     
-    convenience init() {
-        self.init(context: DataStoreManager.shared.viewContext)
+    init(context: NSManagedObjectContext = DataStoreManager.shared.viewContext) {
+        self.context = context
     }
 }
 
 // MARK: - TrackerCategoryStoreProtocol
 extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
-    var categories: [TrackerCategoryCoreData] {
+    var categories: [String] {
         let request = TrackerCategoryCoreData.fetchRequest()
         do {
-            return try context.fetch(request)
+            let results = try context.fetch(request)
+            return results.map { $0.name ?? "" }
         } catch {
-            print("Failed to fetch categories: \(error)")
+            print("Failed to fetch category names: \(error)")
             return []
         }
     }
-    
+
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", category.name)
