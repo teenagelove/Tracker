@@ -5,7 +5,6 @@
 //  Created by Danil Kazakov on 16.04.2025.
 //
 
-import CoreData
 
 protocol TrackerCategoryDataProviderProtocol {
     var categories: [String] { get }
@@ -13,11 +12,9 @@ protocol TrackerCategoryDataProviderProtocol {
 }
 
 final class TrackerCategoryDataProvider {
-    private let context: NSManagedObjectContext
     private let store: TrackerCategoryStoreProtocol
 
     init(_ store: TrackerCategoryStoreProtocol) throws {
-        self.context = DataStoreManager.shared.viewContext
         self.store = store
     }
 }

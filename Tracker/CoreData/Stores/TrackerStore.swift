@@ -37,7 +37,7 @@ extension TrackerStore: TrackerStoreProtocol {
         trackerEntity.name = tracker.name
         trackerEntity.emoji = tracker.emoji
         trackerEntity.color = tracker.color
-        trackerEntity.schedule = tracker.schedule as NSSet
+        trackerEntity.schedule = tracker.schedule.toCoreDataString()
         trackerEntity.createdAt = Date()
         trackerEntity.category = categoryEntity
         DataStoreManager.shared.saveContext()

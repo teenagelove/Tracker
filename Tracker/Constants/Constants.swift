@@ -25,5 +25,6 @@ enum Constants {
         static let notFound = "Ничего не найдено"
         static let emoji = "Emoji"
         static let color = "Цвет"
+        static let defaultCategory = "Пивная"
     }
 }

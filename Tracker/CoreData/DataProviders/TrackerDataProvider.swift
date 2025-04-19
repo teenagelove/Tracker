@@ -28,7 +28,6 @@ protocol TrackerDataProviderProtocol {
     func trackerCoreData(by id: UUID) -> TrackerCoreData?
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws
     func nameOfSection(_ section: Int) -> String
-    func toggleDelegate()
 }
 
 final class TrackerDataProvider: NSObject {
@@ -75,7 +74,7 @@ private extension TrackerDataProvider {
             name: object.name ?? "",
             color: object.color as? UIColor ?? UIColor.clear,
             emoji: object.emoji ?? "🍻",
-            schedule: object.schedule as? Set<Week> ?? []
+            schedule: object.schedule.toWeekSet()
         )
     }
 }
@@ -104,7 +103,11 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
         
         let startOfDay = calendar.startOfDay(for: currentDate)
         let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-
+        
+        // Предикат отображает трекеры по дням недели из их расписания.
+        // И если у трекера schedule == nil (нерегулярное событие), тогда:
+        // 1. Он не выполнен ни разу - отображаем каждый день
+        // 2. Но если был выполнен хотя бы раз - отображаем только в день выполнения.
         let eventDisplayPredicate = NSPredicate(
             format: """
             (schedule != nil AND schedule CONTAINS[c] %@) OR
@@ -117,6 +120,7 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
             startOfDay as NSDate,
             startOfNextDay as NSDate
         )
+        
         predicates.append(eventDisplayPredicate)
 
         fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
@@ -156,10 +160,6 @@ extension TrackerDataProvider: TrackerDataProviderProtocol {
     
     func nameOfSection(_ section: Int) -> String {
         fetchedResultsController.sections?[section].name ?? ""
-    }
-    
-    func toggleDelegate() {
-        fetchedResultsController.delegate = (fetchedResultsController.delegate === self) ? nil : self
     }
 }
 
@@ -218,11 +218,6 @@ extension TrackerDataProvider: NSFetchedResultsControllerDelegate {
         case .delete:
             if let indexPath = indexPath {
                 deletedIndexPaths.append(indexPath)
-            }
-        case .update:
-            if let indexPath = indexPath, let newIndexPath = newIndexPath {
-                deletedIndexPaths.append(indexPath)
-                insertedIndexPaths.append(newIndexPath)
             }
         default:
             break

@@ -5,10 +5,6 @@
 //  Created by Danil Kazakov on 13.04.2025.
 //
 
-import Foundation
-import CoreData
-
-import UIKit
 import CoreData
 
 protocol TrackerRecordStoreProtocol {

@@ -207,7 +207,6 @@ extension TrackerViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // TODO: - Change Name
         trackerProvider?.numbersOfRowsInSections(in: section) ?? 0
     }
     
@@ -274,7 +273,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
     func didReceiveNewTracker(tracker: Tracker) {
-        let defaultCategoryName = "Пивная"
+        let defaultCategoryName = Constants.UIString.defaultCategory
         
         let categoryName = categoryProvider?.categories.first ?? defaultCategoryName
         let category = TrackerCategory(name: categoryName, trackers: [])
@@ -294,8 +293,7 @@ extension TrackerViewController: TrackerCellDelegate {
             let indexPath = collectionView.indexPath(for: cell)
         else { return }
         
-        let day = Calendar.current.startOfDay(for: currentDate)
-        let record = TrackerRecord(id: trackerID, date: day)
+        let record = TrackerRecord(id: trackerID, date: currentDate)
         
         if !isTrackerCompletedToday(id: trackerID) {
             try? recordProvider?.addTrackerRecord(record)

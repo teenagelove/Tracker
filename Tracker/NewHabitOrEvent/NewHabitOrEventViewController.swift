@@ -220,7 +220,7 @@ private extension NewHabitOrEventViewController {
     func getSubtitleFromRow(for row: Int) -> String? {
         switch row {
         case 0:
-            return "Пивная категория"
+            return "\(Constants.UIString.defaultCategory)"
         case 1:
             return schedule.isEmpty ? nil : getScheduleShortTitle()
         default:
@@ -286,7 +286,6 @@ private extension NewHabitOrEventViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
             
-            // TODO: Stub
             tableView.heightAnchor.constraint(equalToConstant: isHabit ? 75 * 2 : 75),
             
             buttonsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

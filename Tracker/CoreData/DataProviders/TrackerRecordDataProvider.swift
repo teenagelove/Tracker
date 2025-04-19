@@ -5,8 +5,7 @@
 //  Created by Danil Kazakov on 17.04.2025.
 //
 
-import UIKit
-import CoreData
+import Foundation
 
 protocol TrackerRecordDataProviderProtocol {
     func addTrackerRecord(_ trackerRecord: TrackerRecord) throws
@@ -17,11 +16,9 @@ protocol TrackerRecordDataProviderProtocol {
 
 final class TrackerRecordDataProvider: NSObject {
     private let dataStore: TrackerRecordStoreProtocol
-    private let context: NSManagedObjectContext
     private let provider: TrackerDataProviderProtocol
     
     init(_ store: TrackerRecordStoreProtocol, trackerProvider: TrackerDataProviderProtocol) throws {
-        self.context = DataStoreManager.shared.viewContext
         dataStore = store
         provider = trackerProvider
     }
@@ -35,18 +32,11 @@ extension TrackerRecordDataProvider: TrackerRecordDataProviderProtocol {
         else {
             throw TrackerRecordStoreError.decodingErrorInvalidTrackerID
         }
-        // TODO:  Если задать records.tracker, то это вызовет обновление в fetchedResultsController
-        // Из-за этого начинает криво работать коллекция, как обойти - не придумал.
-        // Использую хот-фикс как выключение делегата, чтобы не было обновления.
-        provider.toggleDelegate()
         try dataStore.addTrackerRecord(trackerRecord, tracker: tracker)
-        provider.toggleDelegate()
     }
     
     func removeTrackerRecord(_ trackerRecord: TrackerRecord) throws {
-        provider.toggleDelegate()
         try dataStore.removeTrackerRecord(trackerRecord)
-        provider.toggleDelegate()
     }
     
     func isTrackerCompletedToday(id: UUID, date: Date) -> Bool {
