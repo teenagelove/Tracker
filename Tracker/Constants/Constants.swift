@@ -28,4 +28,8 @@ enum Constants {
         static let defaultCategory = "Пивная"
         static let skipOnboarding = "Вот это технологии!"
     }
+    
+    enum Keys {
+        static let isShowedOnboarding = "isShowedOnboarding"
+    }
 }

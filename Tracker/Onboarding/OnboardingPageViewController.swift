@@ -16,6 +16,8 @@ final class OnboardingPageViewController: UIPageViewController {
     
     private lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
+        pageControl.numberOfPages = pages.count
+        pageControl.currentPage = 0
         return pageControl
     }()
     
@@ -23,19 +25,22 @@ final class OnboardingPageViewController: UIPageViewController {
         let button = UIButton(type: .system)
         button.setTitle(Constants.UIString.skipOnboarding, for: .normal)
         button.setTitleColor(.ypBackground, for: .normal)
+        button.backgroundColor = .ypAccent
+        button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
     }
 }
 
 // MARK: - Actions
 private extension OnboardingPageViewController {
     @objc func didTapCompleteButton() {
-//        UserDefaults.standard.set(true, forKey: Constants.UIString.skipOnboarding)
+        UserDefaults.standard.set(true, forKey: Constants.Keys.isShowedOnboarding)
         UIApplication.shared.windows.first?.rootViewController = TabBarViewController()
     }
 }
@@ -45,6 +50,21 @@ private extension OnboardingPageViewController {
     func setupUI() {
         dataSource = self
         delegate = self
+        setupSubviews()
+        setupConstraint()
+    }
+    
+    func setupSubviews() {
+        if let first = pages.first {
+            setViewControllers(
+                [first],
+                direction: .forward,
+                animated: true,
+                completion: nil
+            )
+        }
+        
+        view.addSubviews(pageControl, completeButton)
     }
     
     func setupConstraint() {
@@ -83,7 +103,7 @@ extension OnboardingPageViewController: UIPageViewControllerDataSource {
         
         let newIndex = viewControllerIndex + 1
         
-        if newIndex > pages.count {
+        if newIndex >= pages.count {
             return pages.first
         }
         

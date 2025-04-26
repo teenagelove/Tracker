@@ -8,11 +8,12 @@
 import UIKit
 
 final class OnboardingViewController: UIViewController {
-    private let image: UIImage
+    private var image: UIImage
     private let imageView = UIImageView()
     
     init(image: UIImage) {
         self.image = image
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -24,6 +25,7 @@ final class OnboardingViewController: UIViewController {
         
         imageView.frame = view.bounds
         imageView.image = image
+        
         view.addSubview(imageView)
     }
 }
