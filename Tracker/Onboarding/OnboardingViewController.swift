@@ -9,10 +9,21 @@ import UIKit
 
 final class OnboardingViewController: UIViewController {
     private var image: UIImage
-    private let imageView = UIImageView()
+    private var text: String
     
-    init(image: UIImage) {
+    private lazy var imageView = UIImageView(frame: view.bounds)
+    private lazy var textLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.font = .onboarding
+        label.textColor = .ypBlack
+        return label
+    }()
+    
+    init(image: UIImage, text: String) {
         self.image = image
+        self.text = text
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -23,9 +34,16 @@ final class OnboardingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        imageView.frame = view.bounds
         imageView.image = image
+        textLabel.text = text
         
         view.addSubview(imageView)
+        view.addSubviews(textLabel)
+        
+        NSLayoutConstraint.activate([
+            textLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            textLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            textLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -270)
+        ])
     }
 }

@@ -17,7 +17,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = scene as? UIWindowScene else { return }
-        
+        if let libraryDirectory = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first {
+            let preferencesPath = libraryDirectory.appendingPathComponent("Preferences")
+            print("Путь к папке Preferences с UserDefaults: \(preferencesPath.path)")
+        }
         window = UIWindow(windowScene: windowScene)
         
         let isShowedOnboarding = UserDefaults.standard.bool(forKey: Constants.Keys.isShowedOnboarding)

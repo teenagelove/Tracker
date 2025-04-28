@@ -27,6 +27,8 @@ enum Constants {
         static let color = "Цвет"
         static let defaultCategory = "Пивная"
         static let skipOnboarding = "Вот это технологии!"
+        static let onboardingFirstTitle = "Отслеживайте только то, что хотите"
+        static let onboardingSecondTitle = "Даже если это  не литры воды и йога"
     }
     
     enum Keys {

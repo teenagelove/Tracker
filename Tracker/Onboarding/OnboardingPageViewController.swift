@@ -8,9 +8,18 @@
 import UIKit
 
 final class OnboardingPageViewController: UIPageViewController {
+    // MARK: - UI Components
     private lazy var pages: [UIViewController] = {
-        let blueVC = OnboardingViewController(image: .onboardingBlueBackground)
-        let redVC = OnboardingViewController(image: .onboardingRedBackground)
+        let blueVC = OnboardingViewController(
+            image: .onboardingBlueBackground,
+            text: Constants.UIString.onboardingFirstTitle
+        )
+        
+        let redVC = OnboardingViewController(
+            image: .onboardingRedBackground,
+            text: Constants.UIString.onboardingSecondTitle
+        )
+        
         return [blueVC, redVC]
     }()
     
@@ -18,19 +27,24 @@ final class OnboardingPageViewController: UIPageViewController {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
+        pageControl.currentPageIndicatorTintColor = .ypBlack
+        pageControl.pageIndicatorTintColor = .ypGray
         return pageControl
     }()
     
     private lazy var completeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(Constants.UIString.skipOnboarding, for: .normal)
-        button.setTitleColor(.ypBackground, for: .normal)
-        button.backgroundColor = .ypAccent
+        button.titleLabel?.font = .medium
+        button.titleLabel?.textAlignment = .center
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
         return button
     }()
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -74,7 +88,7 @@ private extension OnboardingPageViewController {
             
             completeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             completeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            completeButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            completeButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
             completeButton.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
@@ -89,11 +103,7 @@ extension OnboardingPageViewController: UIPageViewControllerDataSource {
         
         let newIndex = viewControllerIndex - 1
         
-        if newIndex < 0 {
-            return pages.last
-        }
-        
-        return pages[newIndex]
+        return newIndex < 0 ? pages.last : pages[newIndex]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
@@ -103,11 +113,7 @@ extension OnboardingPageViewController: UIPageViewControllerDataSource {
         
         let newIndex = viewControllerIndex + 1
         
-        if newIndex >= pages.count {
-            return pages.first
-        }
-        
-        return pages[newIndex]
+        return newIndex >= pages.count ? pages.first : pages[newIndex]
     }
 }
 
