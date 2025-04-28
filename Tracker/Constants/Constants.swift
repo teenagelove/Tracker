@@ -16,7 +16,9 @@ enum Constants {
         static let event = "Нерегулярное событие"
         static let newHabit = "Новая привычка"
         static let newEvent = "Новое нерегулярное событие"
+        static let newCategory = "Новая категория"
         static let trackerPlaceholder = "Введите название трекера"
+        static let categoryPlaceholder = "Введите название категории"
         static let category = "Категория"
         static let schedule = "Расписание"
         static let cancel = "Отменить"
@@ -29,6 +31,10 @@ enum Constants {
         static let skipOnboarding = "Вот это технологии!"
         static let onboardingFirstTitle = "Отслеживайте только то, что хотите"
         static let onboardingSecondTitle = "Даже если это  не литры воды и йога"
+        static let stubEmptyCategoryText = "Привычки и события можно  объединить по смыслу"
+        static let addNewCategory = "Добавить категорию"
+        static let edit = "Редактировать"
+        static let delete = "Удалить"
     }
     
     enum Keys {

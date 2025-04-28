@@ -12,6 +12,7 @@ final class OnboardingViewController: UIViewController {
     private var text: String
     
     private lazy var imageView = UIImageView(frame: view.bounds)
+    
     private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
