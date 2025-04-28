@@ -7,6 +7,18 @@
 
 import UIKit
 
+enum Section: Int, CaseIterable {
+    case emoji
+    case color
+
+    var title: String {
+        switch self {
+        case .emoji: return Constants.UIString.emoji
+        case .color: return Constants.UIString.color
+        }
+    }
+}
+
 protocol NewHabitOrEventViewControllerDelegate: AnyObject {
     func didReceiveSchedule(schedule: Set<Week>)
 }
@@ -87,11 +99,68 @@ final class NewHabitOrEventViewController: UIViewController {
         return tapGesture
     }()
     
+    private lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let itemsPerRow: CGFloat = 6
+        let spacing: CGFloat = 5
+        let outerMargin: CGFloat = 18
+        let width = (UIScreen.main.bounds.width - outerMargin * 2 - spacing * (itemsPerRow - 1)) / itemsPerRow
+        layout.itemSize = CGSize(width: width, height: width)
+        layout.minimumInteritemSpacing = spacing
+        layout.minimumLineSpacing = 0
+        layout.headerReferenceSize = CGSize(
+            width: UIScreen.main.bounds.width - outerMargin * 2,
+            height: 30
+        )
+        layout.sectionInset = UIEdgeInsets(top: 24, left: outerMargin, bottom: 24, right: outerMargin)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.allowsMultipleSelection = true
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(
+            EmojiCell.self,
+            forCellWithReuseIdentifier: EmojiCell.reusableIdentifier
+        )
+        collectionView.register(
+            ColorCell.self,
+            forCellWithReuseIdentifier: ColorCell.reusableIdentifier
+        )
+        collectionView.register(
+            SupplementaryView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: SupplementaryView.reuseIdentifier
+        )
+        return collectionView
+    }()
+    
     
     // MARK: - Properties
     private weak var delegate: TrackerViewControllerDelegate?
     private var isHabit: Bool
     private var schedule: Set<Week> = []
+    
+    private var selectedEmoji: (emoji: String?, indexPath: IndexPath?) {
+        didSet {
+            updateStateApplyButton()
+        }
+    }
+    
+    private var selectedColor: (color: UIColor?, indexPath: IndexPath?) {
+        didSet {
+            updateStateApplyButton()
+        }
+    }
+    
+    private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
+                          "😇", "😡", "🥶", "🤔", "🙌", "🍔",
+                          "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
+    
+    private let colors: [UIColor] = [.typeRed, .typeOrange, .typeBlue, .typeLilac, .typeGreen,
+                                     .typePink, .typeSalmon, .typeBrightBlue, .typeLightGreen,
+                                     .typeDeepBlue, .typeBrightRed, .typeLightPink, .typeLightOrange,
+                                     .typeLightBlue, .typeViolet, .typeLightViolet, .typeLightLilac,
+                                     .typeBrightGreen]
     
     // MARK: - Initializate
     init(isHabit: Bool, delegate: TrackerViewControllerDelegate) {
@@ -125,8 +194,8 @@ private extension NewHabitOrEventViewController {
         let tracker = Tracker(
             id: UUID(),
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
-            color: .typeSalmon,
-            emoji: "🍺",
+            color: selectedColor.color ?? .typeSalmon,
+            emoji: selectedEmoji.emoji ?? "🍺",
             schedule: schedule
         )
         
@@ -151,7 +220,7 @@ private extension NewHabitOrEventViewController {
     func getSubtitleFromRow(for row: Int) -> String? {
         switch row {
         case 0:
-            return "Пивная категория"
+            return "\(Constants.UIString.defaultCategory)"
         case 1:
             return schedule.isEmpty ? nil : getScheduleShortTitle()
         default:
@@ -177,7 +246,12 @@ private extension NewHabitOrEventViewController {
         let trimmedText = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
        
         var isValid: Bool {
-            self.isHabit ? !trimmedText.isEmpty && !schedule.isEmpty : !trimmedText.isEmpty
+            let hasText = !trimmedText.isEmpty
+            let hasSchedule = isHabit ? !schedule.isEmpty : true
+            let hasEmoji = selectedEmoji.emoji != nil
+            let hasColor = selectedColor.color != nil
+            
+            return hasText && hasSchedule && hasEmoji && hasColor
         }
         
         applyButton.isEnabled = isValid
@@ -190,7 +264,7 @@ private extension NewHabitOrEventViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         setupNavigationBar()
-        view.addSubviews(textField, tableView, buttonsStack)
+        view.addSubviews(textField, tableView, buttonsStack, collectionView)
         view.addGestureRecognizer(tapGesture)
         setupConstraints()
     }
@@ -212,13 +286,17 @@ private extension NewHabitOrEventViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
             
-            // TODO: Stub
-            tableView.heightAnchor.constraint(equalToConstant: 150),
+            tableView.heightAnchor.constraint(equalToConstant: isHabit ? 75 * 2 : 75),
             
             buttonsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonsStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             buttonsStack.heightAnchor.constraint(equalToConstant: 60),
             buttonsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 50),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: buttonsStack.topAnchor, constant: -16),
         ])
     }
 }
@@ -292,5 +370,126 @@ extension NewHabitOrEventViewController: NewHabitOrEventViewControllerDelegate {
         updateStateApplyButton()
         let indexPath = IndexPath(row: 1, section: 0)
         tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
+}
+
+
+// MARK: - UICollectionViewDataSource
+extension NewHabitOrEventViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        Section.allCases.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let section = Section(rawValue: section) else { return 0 }
+        
+        switch section {
+        case .emoji: return emojis.count
+        case .color: return colors.count
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let section = Section(rawValue: indexPath.section) else {
+            assertionFailure("Invalid section")
+            return UICollectionViewCell()
+        }
+        
+        switch section {
+        case .emoji:
+            guard
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: EmojiCell.reusableIdentifier,
+                    for: indexPath
+                ) as? EmojiCell
+            else {
+                assertionFailure("Failed to dequeue EmojiCell or index out of bounds")
+                return UICollectionViewCell()
+            }
+            
+            cell.configure(with: emojis[indexPath.item])
+            return cell
+            
+        case .color:
+            guard
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: ColorCell.reusableIdentifier,
+                    for: indexPath
+                ) as? ColorCell
+            else {
+                assertionFailure("Failed to dequeue ColorCell or index out of bounds")
+                return UICollectionViewCell()
+            }
+
+            cell.configure(with: colors[indexPath.item])
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard
+            let section = Section(rawValue: indexPath.section),
+              kind == UICollectionView.elementKindSectionHeader,
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: SupplementaryView.reuseIdentifier,
+                for: indexPath
+            ) as? SupplementaryView
+        else {
+            assertionFailure("Failed to dequeue SupplementaryView or invalid section/kind")
+            return UICollectionReusableView()
+        }
+
+        header.configure(section.title)
+        return header
+    }
+}
+
+// MARK: - UICollectionViewFlowDelegate
+extension NewHabitOrEventViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section)
+        else {
+            assertionFailure("Invalid section")
+            return
+        }
+        
+        switch section {
+        case .emoji:
+            if let previous = selectedEmoji.indexPath, previous != indexPath {
+                collectionView.deselectItem(at: previous, animated: true)
+            }
+            selectedEmoji.indexPath = indexPath
+            selectedEmoji.emoji = emojis[indexPath.item]
+            
+        case .color:
+            if let previous = selectedColor.indexPath, previous != indexPath {
+                collectionView.deselectItem(at: previous, animated: true)
+            }
+            selectedColor.indexPath = indexPath
+            selectedColor.color = colors[indexPath.item]
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section)
+        else {
+            assertionFailure("Invalid section")
+            return
+        }
+        
+        switch section {
+        case .emoji:
+            if selectedEmoji.indexPath == indexPath {
+                selectedEmoji.indexPath = nil
+                selectedEmoji.emoji = nil
+            }
+            
+        case .color:
+            if selectedColor.indexPath == indexPath {
+                selectedColor.indexPath = nil
+                selectedColor.color = nil
+            }
+        }
     }
 }
