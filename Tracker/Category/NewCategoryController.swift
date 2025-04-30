@@ -51,9 +51,9 @@ final class NewCategoryController: UIViewController {
     
     // MARK: - Initializers
     init(
-        categoryName: String? = nil,
-        onCategoryAdded: ((String) -> Void)? = nil,
-        onCategoryUpdated: ((String) -> Void)? = nil
+        categoryName: String?,
+        onCategoryAdded: ((String) -> Void)?,
+        onCategoryUpdated: ((String) -> Void)?
     ) {
         currentCategoryName = categoryName
         self.onCategoryAdded = onCategoryAdded

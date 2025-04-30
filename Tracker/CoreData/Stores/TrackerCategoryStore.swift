@@ -40,18 +40,21 @@ final class TrackerCategoryStore: NSObject {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         
-        let frc = NSFetchedResultsController(
+        let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: context,
             sectionNameKeyPath: nil,
             cacheName: nil)
         
-        frc.delegate = self
-        try? frc.performFetch()
-        return frc
+        controller.delegate = self
+        try? controller.performFetch()
+        return controller
     }()
     
-    init(context: NSManagedObjectContext = DataStoreManager.shared.viewContext, delegate: TrackerCategoryStoreDelegate? = nil) {
+    init(
+        context: NSManagedObjectContext = DataStoreManager.shared.viewContext,
+        delegate: TrackerCategoryStoreDelegate?
+    ) {
         self.context = context
         self.delegate = delegate
     }
@@ -143,7 +146,11 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         let results = try context.fetch(fetchRequest)
         guard let categoryToUpdate = results.first else { return }
         categoryToUpdate.name = newName
-        categoryToUpdate.createdAt = Date()
+        
+        categoryToUpdate.trackers?.forEach { tracker in
+            (tracker as? TrackerCoreData)?.category = categoryToUpdate
+        }
+        
         DataStoreManager.shared.saveContext()
     }
 }
@@ -166,7 +173,8 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
             .init(
                 insertedIndexes: insertedIndexes,
                 deletedIndexes: deletedIndexes,
-                updatedIndexes: updatedIndexes))
+                updatedIndexes: updatedIndexes)
+        )
         self.insertedIndexes = nil
         self.deletedIndexes = nil
         self.updatedIndexes = nil
@@ -178,22 +186,21 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
         at indexPath: IndexPath?,
         for type: NSFetchedResultsChangeType,
         newIndexPath: IndexPath?) {
-            switch type {
-            case .delete:
-                if let indexPath = indexPath {
-                    deletedIndexes?.insert(indexPath.row)
-                }
-            case .insert:
-                if let newIndexPath = newIndexPath {
-                    insertedIndexes?.insert(newIndexPath.row)
-                }
-            case .update:
-                if let indexPath = indexPath {
-                    updatedIndexes?.insert(indexPath.row)
-                }
-            default:
-                break
+        switch type {
+        case .delete:
+            if let indexPath = indexPath {
+                deletedIndexes?.insert(indexPath.row)
             }
+        case .insert:
+            if let newIndexPath = newIndexPath {
+                insertedIndexes?.insert(newIndexPath.row)
+            }
+        case .update:
+            if let indexPath = indexPath {
+                updatedIndexes?.insert(indexPath.row)
+            }
+        default:
+            break
         }
+    }
 }
-

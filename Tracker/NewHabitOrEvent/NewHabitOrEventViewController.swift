@@ -197,7 +197,7 @@ private extension NewHabitOrEventViewController {
     }
     
     @objc func applyButtonDidTap() {
-        guard let selectedCategory = selectedCategory else { return }
+        guard let selectedCategory else { return }
         let tracker = Tracker(
             id: UUID(),
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",

@@ -89,11 +89,15 @@ final class CategoryViewController: UIViewController {
 // MARK: - Actions
 private extension CategoryViewController {
     @objc func addNewCategoryDidTap() {
-        let newCategoryController = NewCategoryController(onCategoryAdded:  { [weak self] categoryName in
-            guard let self = self else { return }
-            let newCategory = TrackerCategory(name: categoryName, trackers: [])
-            self.viewModel.addCategory(newCategory)
-        })
+        let newCategoryController = NewCategoryController(
+            categoryName: nil,
+            onCategoryAdded:  { [weak self] categoryName in
+                guard let self else { return }
+                let newCategory = TrackerCategory(name: categoryName, trackers: [])
+                self.viewModel.addCategory(newCategory)
+            },
+            onCategoryUpdated: nil
+        )
         navigationController?.pushViewController(newCategoryController, animated: true)
     }
     
@@ -115,9 +119,12 @@ private extension CategoryViewController {
     
     private func editCategory(at indexPath: IndexPath) {
         let oldCategory = viewModel.categories[indexPath.row]
-        let editVC = NewCategoryController(categoryName: oldCategory.name, onCategoryUpdated:  { [weak self] newName in
-            try? self?.viewModel.updateCategory(oldName: oldCategory.name, newName: newName)
-        })
+        let editVC = NewCategoryController(
+            categoryName: oldCategory.name,
+            onCategoryAdded: nil,
+            onCategoryUpdated:  { [weak self] newName in
+                try? self?.viewModel.updateCategory(oldName: oldCategory.name, newName: newName)
+            })
         navigationController?.pushViewController(editVC, animated: true)
     }
 }
@@ -225,7 +232,7 @@ extension CategoryViewController: UITableViewDelegate {
             ) { [weak self] _ in
                 try? self?.viewModel.deleteCategory(category)
             }
-    
+            
             return UIMenu(children: [editAction, deleteAction])
         }
     }

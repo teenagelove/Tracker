@@ -22,14 +22,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let isShowedOnboarding = UserDefaults.standard.bool(forKey: Constants.Keys.isShowedOnboarding)
         
-        var vc: UIViewController {
+        var rootViewController: UIViewController {
             isShowedOnboarding ? TabBarViewController() : OnboardingPageViewController(
                 transitionStyle: .scroll,
                 navigationOrientation: .horizontal
             )
         }
         
-        window?.rootViewController = vc
+        window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
     }
 }

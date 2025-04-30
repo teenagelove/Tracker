@@ -29,20 +29,20 @@ final class CategoryViewModel {
     
     // MARK: - Initializers
     init(store: TrackerCategoryStoreProtocol) {
-        self.trackerCategoryStore = store
-        self.categories = fetchCategoriesFromStore()
+        trackerCategoryStore = store
+        categories = fetchCategoriesFromStore()
     }
     
     convenience init() {
-        let store = TrackerCategoryStore()
+        let store = TrackerCategoryStore(delegate: nil)
         self.init(store: store)
     }
 }
 
 // MARK: - Private Methods
 private extension CategoryViewModel {
-    private func fetchCategoriesFromStore() -> [TrackerCategory] {
-        return trackerCategoryStore.fetchCategories() ?? []
+    func fetchCategoriesFromStore() -> [TrackerCategory] {
+        trackerCategoryStore.fetchCategories() ?? []
     }
 }
 

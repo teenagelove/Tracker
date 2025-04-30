@@ -332,11 +332,8 @@ extension TrackerViewController: TrackerStoreDelegate {
 extension TrackerViewController: TrackerCategoryStoreDelegate {
     func didUpdate(_ update: TrackerCategoryStoreUpdate) {
         collectionView.performBatchUpdates {
-            // Удаление секций для удаленных категорий
             collectionView.deleteSections(update.deletedIndexes)
-            // Добавление секций для новых категорий
             collectionView.insertSections(update.insertedIndexes)
-            // Перезагрузка секций для обновленных категорий
             collectionView.reloadSections(update.updatedIndexes)
         }
     }
