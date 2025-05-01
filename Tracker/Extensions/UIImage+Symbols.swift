@@ -22,4 +22,8 @@ extension UIImage {
         systemName: "checkmark",
         withConfiguration: UIImage.SymbolConfiguration(pointSize: 11)
     )
+    
+    static let trash = UIImage(systemName: "trash")
+    
+    static let pencil = UIImage(systemName: "pencil")
 }

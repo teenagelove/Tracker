@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerViewControllerDelegate: AnyObject {
-    func didReceiveNewTracker(tracker: Tracker)
+    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory)
 }
 
 final class TrackerViewController: UIViewController {
@@ -57,13 +57,13 @@ final class TrackerViewController: UIViewController {
     
     // MARK: - Properties
     private lazy var categoryStore: TrackerCategoryStore = {
-        TrackerCategoryStore()
+        TrackerCategoryStore(delegate: self)
     }()
-
+    
     private lazy var trackerStore: TrackerStoreProtocol = {
         TrackerStore(categoryStore: categoryStore, delegate: self)
     }()
-
+    
     private lazy var recordStore: TrackerRecordStoreProtocol = {
         TrackerRecordStore(trackerStore: trackerStore)
     }()
@@ -109,7 +109,7 @@ private extension TrackerViewController {
     }
     
     func updateEmptyStateVisibility() {
-        if categoryStore.categories.count == 0 {
+        if categoryStore.categories.count == 0 && trackerStore.trackers.count == 0 {
             emptyStateLabel.text = Constants.UIString.emptyStateLabel
             emptyStateImageView.image = .emptyStateStub
             emptyStateStackView.isHidden = false
@@ -145,6 +145,7 @@ private extension TrackerViewController {
     func setupNavigationBar() {
         navigationItem.title = Constants.UIString.trackers
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
         navigationController?.toolbar.backgroundColor = .ypBackground
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -161,6 +162,7 @@ private extension TrackerViewController {
         navigationItem.searchController?.searchBar.delegate = self
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
         navigationItem.searchController?.searchBar.setValue("Отменить", forKey: "cancelButtonText")
+        navigationItem.hidesSearchBarWhenScrolling = false
     }
     
     func setupCollectionView() {
@@ -266,14 +268,8 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
-    func didReceiveNewTracker(tracker: Tracker) {
-        let defaultCategoryName = Constants.UIString.defaultCategory
-        
-        let categoryName = categoryStore.categories.first ?? defaultCategoryName
-        let category = TrackerCategory(name: categoryName, trackers: [])
-        
+    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory) {
         try? trackerStore.addNewTracker(tracker: tracker, category: category)
-        
         filterTrackers()
     }
 }
@@ -315,11 +311,30 @@ extension TrackerViewController: UISearchBarDelegate {
 // MARK: - TrackerDataProviderDelegate
 extension TrackerViewController: TrackerStoreDelegate {
     func didUpdateTrackers(_ update: TrackerStoreUpdate) {
+        // Если все массивы пустые, значит сработал фильтр и надо обновить всю таблицу
+        if update.deletedIndexPaths.isEmpty && update.insertedIndexPaths.isEmpty && update.deletedSections.isEmpty && update.insertedSections.isEmpty {
+            collectionView.reloadData()
+            return
+        }
+        
         collectionView.performBatchUpdates {
             collectionView.deleteItems(at: update.deletedIndexPaths)
             collectionView.insertItems(at: update.insertedIndexPaths)
             collectionView.deleteSections(update.deletedSections)
             collectionView.insertSections(update.insertedSections)
+        }
+        
+        updateEmptyStateVisibility()
+    }
+}
+
+// MARK: - TrackerCategoryStoreDelegate
+extension TrackerViewController: TrackerCategoryStoreDelegate {
+    func didUpdate(_ update: TrackerCategoryStoreUpdate) {
+        collectionView.performBatchUpdates {
+            collectionView.deleteSections(update.deletedIndexes)
+            collectionView.insertSections(update.insertedIndexes)
+            collectionView.reloadSections(update.updatedIndexes)
         }
     }
 }

@@ -43,12 +43,15 @@ final class TrackerStore: NSObject {
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = TrackerCoreData.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "category.createdAt", ascending: false),
+            NSSortDescriptor(key: "createdAt", ascending: false)
+        ]
         
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: context,
-            sectionNameKeyPath: "category.name",
+            sectionNameKeyPath: "category",
             cacheName: nil
         )
         controller.delegate = self
@@ -91,7 +94,12 @@ extension TrackerStore: TrackerStoreProtocol {
     }
     
     func nameOfSection(_ section: Int) -> String {
-        fetchedResultsController.sections?[section].name ?? ""
+        guard let sectionInfo = fetchedResultsController.sections?[section],
+              let firstObject = sectionInfo.objects?.first as? TrackerCoreData,
+              let category = firstObject.category else {
+            return ""
+        }
+        return category.name ?? ""
     }
     
     func numbersOfRowsInSections(in section: Int) -> Int {
@@ -108,9 +116,6 @@ extension TrackerStore: TrackerStoreProtocol {
     
     
     func updateFilter(currentDate: Date, searchText: String?) {
-        let previousSectionsCount = fetchedResultsController.sections?.count ?? 0
-        let deletedSections = previousSectionsCount > 0 ? IndexSet(integersIn: 0..<previousSectionsCount) : IndexSet()
-        
         var predicates: [NSPredicate] = []
         
         if let searchText, !searchText.isEmpty {
@@ -143,15 +148,11 @@ extension TrackerStore: TrackerStoreProtocol {
         
         do {
             try fetchedResultsController.performFetch()
-            let newSectionsCount = fetchedResultsController.sections?.count ?? 0
-            let insertedSections = newSectionsCount > 0 ? IndexSet(integersIn: 0..<newSectionsCount) : IndexSet()
-            
-            // Отправляем делегату разницу между секциями до фетча и после
             let update = TrackerStoreUpdate(
                 insertedIndexPaths: [],
                 deletedIndexPaths: [],
-                insertedSections: insertedSections,
-                deletedSections: deletedSections
+                insertedSections: [],
+                deletedSections: []
             )
             delegate?.didUpdateTrackers(update)
         } catch {

@@ -10,7 +10,7 @@ import UIKit
 enum Section: Int, CaseIterable {
     case emoji
     case color
-
+    
     var title: String {
         switch self {
         case .emoji: return Constants.UIString.emoji
@@ -140,6 +140,12 @@ final class NewHabitOrEventViewController: UIViewController {
     private var isHabit: Bool
     private var schedule: Set<Week> = []
     
+    private var selectedCategory: TrackerCategory? {
+        didSet {
+            updateStateApplyButton()
+        }
+    }
+    
     private var selectedEmoji: (emoji: String?, indexPath: IndexPath?) {
         didSet {
             updateStateApplyButton()
@@ -191,6 +197,7 @@ private extension NewHabitOrEventViewController {
     }
     
     @objc func applyButtonDidTap() {
+        guard let selectedCategory else { return }
         let tracker = Tracker(
             id: UUID(),
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
@@ -199,7 +206,7 @@ private extension NewHabitOrEventViewController {
             schedule: schedule
         )
         
-        delegate?.didReceiveNewTracker(tracker: tracker)
+        delegate?.didReceiveNewTracker(tracker: tracker, category: selectedCategory)
         navigationController?.dismiss(animated: true)
     }
 }
@@ -220,7 +227,7 @@ private extension NewHabitOrEventViewController {
     func getSubtitleFromRow(for row: Int) -> String? {
         switch row {
         case 0:
-            return "\(Constants.UIString.defaultCategory)"
+            return selectedCategory?.name ?? nil
         case 1:
             return schedule.isEmpty ? nil : getScheduleShortTitle()
         default:
@@ -244,14 +251,15 @@ private extension NewHabitOrEventViewController {
     
     func updateStateApplyButton() {
         let trimmedText = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-       
+        
         var isValid: Bool {
             let hasText = !trimmedText.isEmpty
             let hasSchedule = isHabit ? !schedule.isEmpty : true
             let hasEmoji = selectedEmoji.emoji != nil
             let hasColor = selectedColor.color != nil
+            let hasCategory = selectedCategory != nil
             
-            return hasText && hasSchedule && hasEmoji && hasColor
+            return hasText && hasSchedule && hasEmoji && hasColor && hasCategory
         }
         
         applyButton.isEnabled = isValid
@@ -318,8 +326,10 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         cell.configure(title: title, subtitle: subtitle)
         
         if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            cell.separatorInset = UIEdgeInsets(top: 0, left: tableView.bounds.width, bottom: 0, right: 0)
             cell.makeRounding()
+        } else {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
         
         return cell
@@ -331,7 +341,15 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
-            print("Category did tap")
+            let categoryViewController = CategoryViewController { [weak self] category in
+                guard let self else { return }
+                self.selectedCategory = category
+                
+                let indexPath = IndexPath(row: 0, section: 0)
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            
+            navigationController?.pushViewController(categoryViewController, animated: true)
         case 1:
             navigationController?.pushViewController(
                 ScheduleViewController(
@@ -420,7 +438,7 @@ extension NewHabitOrEventViewController: UICollectionViewDataSource {
                 assertionFailure("Failed to dequeue ColorCell or index out of bounds")
                 return UICollectionViewCell()
             }
-
+            
             cell.configure(with: colors[indexPath.item])
             return cell
         }
@@ -429,7 +447,7 @@ extension NewHabitOrEventViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard
             let section = Section(rawValue: indexPath.section),
-              kind == UICollectionView.elementKindSectionHeader,
+            kind == UICollectionView.elementKindSectionHeader,
             let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
                 withReuseIdentifier: SupplementaryView.reuseIdentifier,
@@ -439,7 +457,7 @@ extension NewHabitOrEventViewController: UICollectionViewDataSource {
             assertionFailure("Failed to dequeue SupplementaryView or invalid section/kind")
             return UICollectionReusableView()
         }
-
+        
         header.configure(section.title)
         return header
     }
