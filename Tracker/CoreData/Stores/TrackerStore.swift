@@ -13,6 +13,7 @@ struct TrackerStoreUpdate {
     let deletedIndexPaths: [IndexPath]
     let insertedSections: IndexSet
     let deletedSections: IndexSet
+    let movedIndexPaths: [(from: IndexPath, to: IndexPath)]
 }
 
 protocol TrackerStoreDelegate: AnyObject {
@@ -43,6 +44,7 @@ final class TrackerStore: NSObject {
     private var deletedIndexPaths: [IndexPath] = []
     private var insertedSections: IndexSet = []
     private var deletedSections: IndexSet = []
+    private var movedIndexPaths: [(from: IndexPath, to: IndexPath)] = []
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = TrackerCoreData.fetchRequest()
@@ -157,7 +159,8 @@ extension TrackerStore: TrackerStoreProtocol {
                 insertedIndexPaths: [],
                 deletedIndexPaths: [],
                 insertedSections: [],
-                deletedSections: []
+                deletedSections: [],
+                movedIndexPaths: []
             )
             delegate?.didUpdateTrackers(update)
         } catch {
@@ -189,7 +192,7 @@ extension TrackerStore: TrackerStoreProtocol {
             print("Tracker with id \(tracker.id) not found for update.")
             return
         }
-
+        
         do {
             let categoryEntity = try categoryStore.fetchOrCreateCategory(from: category)
             
@@ -242,6 +245,7 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         deletedIndexPaths = []
         insertedSections = []
         deletedSections = []
+        movedIndexPaths = []
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
@@ -249,12 +253,14 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
             insertedIndexPaths: insertedIndexPaths,
             deletedIndexPaths: deletedIndexPaths,
             insertedSections: insertedSections,
-            deletedSections: deletedSections
+            deletedSections: deletedSections,
+            movedIndexPaths: movedIndexPaths
         ))
         insertedIndexPaths = []
         deletedIndexPaths = []
         insertedSections = []
         deletedSections = []
+        movedIndexPaths = []
     }
     
     func controller(
@@ -286,11 +292,8 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         case .delete:
             if let indexPath { deletedIndexPaths.append(indexPath) }
         case .move:
-            if let indexPath = indexPath {
-                deletedIndexPaths.append(indexPath)
-            }
-            if let newIndexPath = newIndexPath {
-                insertedIndexPaths.append(newIndexPath)
+            if let old = indexPath, let new = newIndexPath {
+                movedIndexPaths.append((from: old, to: new))
             }
         default:
             break

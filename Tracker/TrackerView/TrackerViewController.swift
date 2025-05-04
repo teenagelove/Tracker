@@ -396,6 +396,10 @@ extension TrackerViewController: TrackerStoreDelegate {
             collectionView.insertItems(at: update.insertedIndexPaths)
             collectionView.deleteSections(update.deletedSections)
             collectionView.insertSections(update.insertedSections)
+            
+            for move in update.movedIndexPaths {
+                collectionView.moveItem(at: move.from, to: move.to)
+            }
         }
         
         updateEmptyStateVisibility()
