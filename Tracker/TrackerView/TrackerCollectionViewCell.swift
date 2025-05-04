@@ -60,6 +60,15 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
+    private lazy var pinImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = .pin
+        imageView.isHidden = true
+        imageView.tintColor = .ypWhite
+        imageView.contentMode = .center
+        return imageView
+    }()
+    
     // MARK: - Properties
     private weak var delegate: TrackerCellDelegate?
     private(set) var trackerID: UUID?
@@ -85,6 +94,7 @@ extension TrackerCollectionViewCell {
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name
+        pinImageView.isHidden = !tracker.isPinned
         updateButton(isCompleted: viewModel.isCompletedToday)
         self.delegate = delegate
     }
@@ -118,7 +128,7 @@ private extension TrackerCollectionViewCell {
     
     func setupSubviews() {
         contentView.addSubviews(cardView, recordLabel, plusButton)
-        cardView.addSubviews(cardTextLabel, emojiLabel)
+        cardView.addSubviews(cardTextLabel, emojiLabel, pinImageView)
     }
     
     func setupConstraints() {
@@ -143,7 +153,12 @@ private extension TrackerCollectionViewCell {
             emojiLabel.heightAnchor.constraint(equalToConstant: 24),
             emojiLabel.widthAnchor.constraint(equalTo: emojiLabel.heightAnchor),
             emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-            emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12)
+            emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
+            
+            pinImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            pinImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
+            pinImageView.heightAnchor.constraint(equalToConstant: 24),
+            pinImageView.widthAnchor.constraint(equalToConstant: 24)
         ])
     }
 }

@@ -217,8 +217,6 @@ extension CategoryViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        let category = viewModel.categories[indexPath.row]
-        
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let editAction = UIAction(
                 title: Constants.UIString.edit, image: .pencil,
@@ -230,10 +228,27 @@ extension CategoryViewController: UITableViewDelegate {
                 title: Constants.UIString.delete, image: .trash,
                 attributes: .destructive
             ) { [weak self] _ in
-                try? self?.viewModel.deleteCategory(category)
+                self?.deleteCategory(at: indexPath)
             }
             
             return UIMenu(children: [editAction, deleteAction])
         }
+    }
+    
+    private func deleteCategory(at indexPath: IndexPath) {
+        let category = viewModel.categories[indexPath.row]
+        
+        let alert = UIAlertController(
+            title: Constants.UIString.deleteCategoryQuestion,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: Constants.UIString.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.UIString.delete, style: .destructive) { [weak self] _ in
+            try? self?.viewModel.deleteCategory(category)
+        })
+        
+        present(alert, animated: true)
     }
 }

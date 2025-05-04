@@ -24,6 +24,7 @@ extension UIImage {
     )
     
     static let trash = UIImage(systemName: "trash")
-    
     static let pencil = UIImage(systemName: "pencil")
+    static let pin = UIImage(systemName: "pin.fill")
+    static let unPin = UIImage(systemName: "pin.slash")
 }

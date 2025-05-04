@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackerViewControllerDelegate: AnyObject {
-    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory)
+    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory, isEdit: Bool)
 }
 
 final class TrackerViewController: UIViewController {
@@ -264,12 +264,84 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         CGSize(width: collectionView.frame.width, height: 30)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let firstIndexPath = indexPaths.first,
+              let tracker = trackerStore.tracker(at: firstIndexPath)
+        else { return nil }
+        
+        return UIContextMenuConfiguration(identifier: firstIndexPath as NSCopying, previewProvider: nil) { _ in
+            let pinTitle = tracker.isPinned
+            ? Constants.UIString.unPin
+            : Constants.UIString.pin
+            
+            let pinImage = tracker.isPinned ? UIImage.unPin : UIImage.pin
+            
+            let pin = UIAction(title: pinTitle, image: pinImage) { _ in
+                self.trackerStore.togglePin(for: tracker.id)
+                self.filterTrackers()
+
+            }
+            
+            let edit = UIAction(
+                title: Constants.UIString.edit,
+                image: .pencil
+            ) { _ in
+                self.editTracker(at: firstIndexPath)
+            }
+            
+            let delete = UIAction(
+                title: Constants.UIString.delete,
+                image: .trash,
+                attributes: .destructive
+            ) { _ in
+                self.deleteTracker(at: firstIndexPath)
+            }
+            
+            return UIMenu(children: [pin, edit, delete])
+        }
+    }
+    
+    private func editTracker(at indexPath: IndexPath) {
+        guard let tracker = trackerStore.tracker(at: indexPath) else { return }
+        
+        let categoryName = trackerStore.nameOfSection(indexPath.section)
+        let category = TrackerCategory(name: categoryName, trackers: [])
+        let isHabit = !tracker.schedule.isEmpty
+        let record = recordStore.completedTrackersCount(for: tracker.id)
+        
+        let editViewController = NewHabitOrEventViewController(isHabit: isHabit, mode: .edit, delegate: self)
+        
+        editViewController.setTracker(tracker: tracker, category: category, record: record)
+        
+        present(UINavigationController(rootViewController: editViewController), animated: true)
+    }
+    
+    private func deleteTracker(at indexPath: IndexPath) {
+        let alert = UIAlertController(
+            title: Constants.UIString.deleteTrackerQuestion,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: Constants.UIString.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.UIString.delete, style: .destructive) { [weak self] _ in
+            self?.trackerStore.deleteTracker(at: indexPath)
+        })
+        
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - TrackerViewControllerDelegate
 extension TrackerViewController: TrackerViewControllerDelegate {
-    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory) {
-        try? trackerStore.addNewTracker(tracker: tracker, category: category)
+    func didReceiveNewTracker(tracker: Tracker, category: TrackerCategory, isEdit: Bool) {
+        if isEdit {
+            trackerStore.updateTracker(tracker: tracker, category: category)
+        } else {
+            try? trackerStore.addNewTracker(tracker: tracker, category: category)
+        }
+        
         filterTrackers()
     }
 }
@@ -312,7 +384,10 @@ extension TrackerViewController: UISearchBarDelegate {
 extension TrackerViewController: TrackerStoreDelegate {
     func didUpdateTrackers(_ update: TrackerStoreUpdate) {
         // Если все массивы пустые, значит сработал фильтр и надо обновить всю таблицу
-        if update.deletedIndexPaths.isEmpty && update.insertedIndexPaths.isEmpty && update.deletedSections.isEmpty && update.insertedSections.isEmpty {
+        if update.deletedIndexPaths.isEmpty &&
+            update.insertedIndexPaths.isEmpty &&
+            update.deletedSections.isEmpty &&
+            update.insertedSections.isEmpty {
             collectionView.reloadData()
             return
         }

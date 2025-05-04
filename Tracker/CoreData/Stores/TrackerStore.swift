@@ -28,6 +28,10 @@ protocol TrackerStoreProtocol {
     func tracker(at indexPath: IndexPath) -> Tracker?
     func tracker(by id: UUID) -> TrackerCoreData?
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws
+    func deleteTracker(at indexPath: IndexPath)
+    func updateTracker(tracker: Tracker, category: TrackerCategory)
+    func togglePin(for id: UUID)
+    func getPinnedTrackers() -> [Tracker]
 }
 
 final class TrackerStore: NSObject {
@@ -78,7 +82,8 @@ private extension TrackerStore {
             name: object.name ?? "",
             color: object.color as? UIColor ?? .clear,
             emoji: object.emoji ?? "❓",
-            schedule: object.schedule.toWeekSet()
+            schedule: object.schedule.toWeekSet(),
+            isPinned: object.isPinned
         )
     }
 }
@@ -172,6 +177,44 @@ extension TrackerStore: TrackerStoreProtocol {
         trackerEntity.category = categoryEntity
         DataStoreManager.shared.saveContext()
     }
+    
+    func deleteTracker(at indexPath: IndexPath) {
+        let tracker = fetchedResultsController.object(at: indexPath)
+        context.delete(tracker)
+        DataStoreManager.shared.saveContext()
+    }
+    
+    func updateTracker(tracker: Tracker, category: TrackerCategory) {
+        guard let existingTracker = self.tracker(by: tracker.id) else {
+            print("Tracker with id \(tracker.id) not found for update.")
+            return
+        }
+
+        do {
+            let categoryEntity = try categoryStore.fetchOrCreateCategory(from: category)
+            
+            existingTracker.name = tracker.name
+            existingTracker.color = tracker.color
+            existingTracker.emoji = tracker.emoji
+            existingTracker.schedule = tracker.schedule.toCoreDataString()
+            existingTracker.category = categoryEntity
+            
+            DataStoreManager.shared.saveContext()
+        } catch {
+            print("Failed to fetch or create category for tracker update: \(error)")
+        }
+    }
+    
+    func togglePin(for id: UUID) {
+        guard let tracker = fetchedResultsController.fetchedObjects?.first(where: { $0.id == id })
+        else { return }
+        tracker.isPinned.toggle()
+        DataStoreManager.shared.saveContext()
+    }
+    
+    func getPinnedTrackers() -> [Tracker] {
+        fetchedResultsController.fetchedObjects?.filter(\.isPinned).map { modelFrom($0) } ?? []
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
@@ -224,6 +267,13 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
             if let newIndexPath { insertedIndexPaths.append(newIndexPath) }
         case .delete:
             if let indexPath { deletedIndexPaths.append(indexPath) }
+        case .move:
+            if let indexPath = indexPath {
+                deletedIndexPaths.append(indexPath)
+            }
+            if let newIndexPath = newIndexPath {
+                insertedIndexPaths.append(newIndexPath)
+            }
         default:
             break
         }

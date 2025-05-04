@@ -80,7 +80,7 @@ private extension CreationTrackerViewController {
 private extension CreationTrackerViewController {
     func navigateToHabitOrEvent(isHabit: Bool) {
         guard let delegate = delegate else { return }
-        let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit, delegate: delegate)
+        let newHabitOrEventViewController = NewHabitOrEventViewController(isHabit: isHabit, mode: .create, delegate: delegate)
         navigationController?.pushViewController(newHabitOrEventViewController, animated: true)
     }
 }

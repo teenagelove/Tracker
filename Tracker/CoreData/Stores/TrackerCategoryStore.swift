@@ -73,13 +73,15 @@ private extension TrackerCategoryStore {
         }
         
         let schedule = trackerCoreData.schedule.toWeekSet()
+        let isPinned = trackerCoreData.isPinned
         
         return Tracker(
             id: id,
             name: name,
             color: color as? UIColor ?? .clear,
             emoji: emoji,
-            schedule: schedule
+            schedule: schedule,
+            isPinned: isPinned
         )
     }
 }

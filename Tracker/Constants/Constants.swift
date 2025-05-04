@@ -37,6 +37,13 @@ enum Constants {
         static let addNewCategory = "Добавить категорию"
         static let edit = "Редактировать"
         static let delete = "Удалить"
+        static let editTracker = "Редактирование привычки"
+        static let editEvent = "Редактирование события"
+        static let deleteCategoryQuestion = "Эта категория точно не нужна?"
+        static let deleteTrackerQuestion = "Уверены, что хотите удалить трекер?"
+        static let pin = "Закрепить"
+        static let unPin = "Открепить"
+        static let pinned = "Закрепленные"
     }
     
     enum Keys {
