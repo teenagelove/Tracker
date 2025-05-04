@@ -199,7 +199,7 @@ extension TrackerStore: TrackerStoreProtocol {
             existingTracker.schedule = tracker.schedule.toCoreDataString()
             
             if existingTracker.isPinned {
-                existingTracker.originalCategory = categoryEntity
+                existingTracker.originalCategory = categoryEntity.name
             } else {
                 existingTracker.category = categoryEntity
             }
@@ -219,11 +219,15 @@ extension TrackerStore: TrackerStoreProtocol {
         
         if tracker.isPinned {
             if tracker.originalCategory == nil {
-                tracker.originalCategory = tracker.category
+                tracker.originalCategory = tracker.category?.name
             }
             tracker.category = try? categoryStore.fetchOrCreateCategory(from: pinnedCategory)
         } else {
-            tracker.category = tracker.originalCategory ?? tracker.category
+            let originalCategory = TrackerCategory(
+                name: tracker.originalCategory ?? "",
+                trackers: []
+            )
+            tracker.category = try? categoryStore.fetchOrCreateCategory(from: originalCategory)
             tracker.originalCategory = nil
         }
         
