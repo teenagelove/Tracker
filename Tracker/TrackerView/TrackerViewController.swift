@@ -280,7 +280,6 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
             let pin = UIAction(title: pinTitle, image: pinImage) { _ in
                 self.trackerStore.togglePin(for: tracker.id)
                 self.filterTrackers()
-
             }
             
             let edit = UIAction(

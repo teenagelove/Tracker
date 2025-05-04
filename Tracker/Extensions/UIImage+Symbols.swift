@@ -27,4 +27,11 @@ extension UIImage {
     static let pencil = UIImage(systemName: "pencil")
     static let pin = UIImage(systemName: "pin.fill")
     static let unPin = UIImage(systemName: "pin.slash")
+    
+    static let pinIcon = UIImage(
+        systemName: "pin.fill",
+        withConfiguration: UIImage.SymbolConfiguration(
+            pointSize: 11
+        )
+    )
 }

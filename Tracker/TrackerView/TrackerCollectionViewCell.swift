@@ -62,7 +62,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private lazy var pinImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = .pin
+        imageView.image = .pinIcon
         imageView.isHidden = true
         imageView.tintColor = .ypWhite
         imageView.contentMode = .center

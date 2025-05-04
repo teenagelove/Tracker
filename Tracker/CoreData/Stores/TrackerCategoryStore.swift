@@ -18,7 +18,7 @@ struct TrackerCategoryStoreUpdate {
 protocol TrackerCategoryStoreProtocol {
     var categories: [String] { get }
     func numberOfRowsInSection(_ section: Int) -> Int
-    func fetchCategories() -> [TrackerCategory]?
+    func fetchCategories() -> [TrackerCategory]
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
     func deleteCategory(_ category: TrackerCategory) throws
     func updateCategory(oldName: String, newName: String) throws
@@ -103,12 +103,18 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
-    func fetchCategories() -> [TrackerCategory]? {
+    func fetchCategories() -> [TrackerCategory] {
         guard let fetchedObjects = fetchedResultsController.fetchedObjects else {
             return []
         }
-        return fetchedObjects.map { categoryCoreData in
-            let trackers = (categoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap { makeTracker(from: $0) } ?? []
+
+        let filteredObjects = fetchedObjects.filter { $0.name != Constants.UIString.pinned }
+
+        return filteredObjects.map { categoryCoreData in
+            let trackers = (categoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {
+                makeTracker(from: $0)
+            } ?? []
+
             return TrackerCategory(name: categoryCoreData.name ?? "", trackers: trackers)
         }
     }

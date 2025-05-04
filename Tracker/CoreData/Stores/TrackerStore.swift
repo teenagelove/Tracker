@@ -31,7 +31,6 @@ protocol TrackerStoreProtocol {
     func deleteTracker(at indexPath: IndexPath)
     func updateTracker(tracker: Tracker, category: TrackerCategory)
     func togglePin(for id: UUID)
-    func getPinnedTrackers() -> [Tracker]
 }
 
 final class TrackerStore: NSObject {
@@ -48,6 +47,7 @@ final class TrackerStore: NSObject {
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "isPinned", ascending: false),
             NSSortDescriptor(key: "category.createdAt", ascending: false),
             NSSortDescriptor(key: "createdAt", ascending: false)
         ]
@@ -197,7 +197,12 @@ extension TrackerStore: TrackerStoreProtocol {
             existingTracker.color = tracker.color
             existingTracker.emoji = tracker.emoji
             existingTracker.schedule = tracker.schedule.toCoreDataString()
-            existingTracker.category = categoryEntity
+            
+            if existingTracker.isPinned {
+                existingTracker.originalCategory = categoryEntity
+            } else {
+                existingTracker.category = categoryEntity
+            }
             
             DataStoreManager.shared.saveContext()
         } catch {
@@ -206,14 +211,23 @@ extension TrackerStore: TrackerStoreProtocol {
     }
     
     func togglePin(for id: UUID) {
-        guard let tracker = fetchedResultsController.fetchedObjects?.first(where: { $0.id == id })
-        else { return }
+        guard let tracker = fetchedResultsController.fetchedObjects?.first(where: { $0.id == id }) else { return }
         tracker.isPinned.toggle()
+        
+        let pinnedCategoryName = Constants.UIString.pinned
+        let pinnedCategory = TrackerCategory(name: pinnedCategoryName, trackers: [])
+        
+        if tracker.isPinned {
+            if tracker.originalCategory == nil {
+                tracker.originalCategory = tracker.category
+            }
+            tracker.category = try? categoryStore.fetchOrCreateCategory(from: pinnedCategory)
+        } else {
+            tracker.category = tracker.originalCategory ?? tracker.category
+            tracker.originalCategory = nil
+        }
+        
         DataStoreManager.shared.saveContext()
-    }
-    
-    func getPinnedTrackers() -> [Tracker] {
-        fetchedResultsController.fetchedObjects?.filter(\.isPinned).map { modelFrom($0) } ?? []
     }
 }
 
