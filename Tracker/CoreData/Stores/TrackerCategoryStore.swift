@@ -92,7 +92,8 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         let request = TrackerCategoryCoreData.fetchRequest()
         do {
             let results = try context.fetch(request)
-            return results.map { $0.name ?? "" }
+            let filteredResult = results.filter { $0.name != Constants.UIString.pinned }
+            return filteredResult.map { $0.name ?? "" }
         } catch {
             print("Failed to fetch category names: \(error)")
             return []
