@@ -1,0 +1,56 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Danil Kazakov on 11.05.2025.
+  
+*/
+
+// MARK: - Onboarding
+"onboarding.first.title" = "Отслеживайте только то, что хотите";
+"onboarding.second.title" = "Даже если это  не литры воды и йога";
+"onboarding.skip" = "Вот это технологии!";
+
+// MARK: - Stubs
+"stub.empty.tracker.title" = "Что будем отслеживать?";
+"stub.empty.category.text" = "Привычки и события можно  объединить по смыслу";
+"stub.empty.filter.title" = "Ничего не найдено";
+"stub.empty.category.placeholder" = "Введите название категории";
+"stub.empty.tracker.placeholder" = "Введите название трекера";
+
+// MARK: - Tracker
+"trackers.title" = "Трекеры";
+"tracker.title" = "Привычка";
+"tracker.emoji" = "Emoji";
+"tracker.color" = "Цвет";
+"tracker.event.title" = "Нерегулярное событие";
+"tracker.new.title" = "Новая привычка";
+"tracker.event.new.title" = "Новое нерегулярное событие";
+"tracker.edit.title" = "Редактирование привычки";
+"tracker.edit.event.title" = "Редактирование события";
+"tracker.create.title" = "Создание трекера";
+"tracker.schedule" = "Расписание";
+"delete.tracker.question" = "Уверены, что хотите удалить трекер?";
+
+// MARK: - Category
+"category.title" = "Категория";
+"default.category.title" = "Пивная";
+"new.category.title" = "Новая категория";
+"add.new.category" = "Добавить категорию";
+"delete.category.question" = "Эта категория точно не нужна?";
+
+// MARK: - Actions
+"action.apply" = "Применить";
+"action.cancel" = "Отменить";
+"action.submit" = "Готово";
+"action.edit" = "Редактировать";
+"action.delete" = "Удалить";
+"action.pin" = "Закрепить";
+"action.unpin" = "Открепить";
+"action.pinned" = "Закрепленные";
+
+// MARK: - Statistic
+"statistic.title" = "Статистика";
+
+// MARK: - Search
+"search.title" = "Поиск";

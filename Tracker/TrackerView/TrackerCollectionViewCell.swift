@@ -90,7 +90,10 @@ extension TrackerCollectionViewCell {
         let tracker = viewModel.tracker
         trackerID = tracker.id
         cardView.backgroundColor = tracker.color
-        recordLabel.text = "\(viewModel.completedDays) \(viewModel.completedDays.dayWord)"
+        recordLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString(Constants.UIString.completedDays, comment: ""),
+            viewModel.completedDays,
+        )
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         cardTextLabel.text = tracker.name

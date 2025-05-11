@@ -9,41 +9,55 @@ import Foundation
 
 enum Constants {
     enum UIString {
-        static let emptyStateLabel = "Что будем отслеживать?"
-        static let trackers = "Трекеры"
-        static let statistic = "Статистика"
-        static let search = "Поиск"
-        static let creatingTracker = "Создание трекера"
-        static let habit = "Привычка"
-        static let event = "Нерегулярное событие"
-        static let newHabit = "Новая привычка"
-        static let newEvent = "Новое нерегулярное событие"
-        static let newCategory = "Новая категория"
-        static let trackerPlaceholder = "Введите название трекера"
-        static let categoryPlaceholder = "Введите название категории"
-        static let category = "Категория"
-        static let schedule = "Расписание"
-        static let cancel = "Отменить"
-        static let apply = "Применить"
-        static let submit = "Готово"
-        static let notFound = "Ничего не найдено"
-        static let emoji = "Emoji"
-        static let color = "Цвет"
-        static let defaultCategory = "Пивная"
-        static let skipOnboarding = "Вот это технологии!"
-        static let onboardingFirstTitle = "Отслеживайте только то, что хотите"
-        static let onboardingSecondTitle = "Даже если это  не литры воды и йога"
-        static let stubEmptyCategoryText = "Привычки и события можно  объединить по смыслу"
-        static let addNewCategory = "Добавить категорию"
-        static let edit = "Редактировать"
-        static let delete = "Удалить"
-        static let editTracker = "Редактирование привычки"
-        static let editEvent = "Редактирование события"
-        static let deleteCategoryQuestion = "Эта категория точно не нужна?"
-        static let deleteTrackerQuestion = "Уверены, что хотите удалить трекер?"
-        static let pin = "Закрепить"
-        static let unPin = "Открепить"
-        static let pinned = "Закрепленные"
+        // MARK: - Onboarding
+        static let onboardingFirstTitle = NSLocalizedString("onboarding.first.title", comment: "")
+        static let onboardingSecondTitle = NSLocalizedString("onboarding.second.title", comment: "")
+        static let skipOnboarding = NSLocalizedString("onboarding.skip", comment: "")
+
+        // MARK: - Stubs
+        static let emptyStateLabel = NSLocalizedString("stub.empty.tracker.title", comment: "")
+        static let stubEmptyCategoryText = NSLocalizedString("stub.empty.category.text", comment: "")
+        static let notFound = NSLocalizedString("stub.empty.filter.title", comment: "")
+        static let trackerPlaceholder = NSLocalizedString("stub.empty.category.placeholder", comment: "")
+        static let categoryPlaceholder = NSLocalizedString("stub.empty.tracker.placeholder", comment: "")
+
+        // MARK: - Tracker
+        static let trackers = NSLocalizedString("trackers.title", comment: "")
+        static let habit = NSLocalizedString("tracker.title", comment: "")
+        static let emoji = NSLocalizedString("tracker.emoji", comment: "")
+        static let color = NSLocalizedString("tracker.color", comment: "")
+        static let event = NSLocalizedString("tracker.event.title", comment: "")
+        static let newHabit = NSLocalizedString("tracker.new.title", comment: "")
+        static let newEvent = NSLocalizedString("tracker.event.new.title", comment: "")
+        static let editTracker = NSLocalizedString("tracker.edit.title", comment: "")
+        static let editEvent = NSLocalizedString("tracker.edit.event.title", comment: "")
+        static let creatingTracker = NSLocalizedString("tracker.create.title", comment: "")
+        static let schedule = NSLocalizedString("tracker.schedule", comment: "")
+        static let deleteTrackerQuestion = NSLocalizedString("delete.tracker.question", comment: "")
+        static let completedDays = "tracker.completed.days"
+
+        // MARK: - Category
+        static let category = NSLocalizedString("category.title", comment: "")
+        static let defaultCategory = NSLocalizedString("default.category.title", comment: "")
+        static let newCategory = NSLocalizedString("new.category.title" , comment: "")
+        static let addNewCategory = NSLocalizedString("add.new.category" , comment: "")
+        static let deleteCategoryQuestion = NSLocalizedString("delete.category.question" , comment: "")
+        
+        // MARK: - Actions
+        static let apply = NSLocalizedString("action.apply", comment: "")
+        static let cancel = NSLocalizedString("action.cancel", comment: "")
+        static let submit = NSLocalizedString("action.submit", comment: "")
+        static let edit = NSLocalizedString("action.edit", comment: "")
+        static let delete = NSLocalizedString("action.delete", comment: "")
+        static let pin = NSLocalizedString("action.pin", comment: "")
+        static let unPin = NSLocalizedString("action.unpin", comment: "")
+        static let pinned = NSLocalizedString("action.pinned", comment: "")
+
+        // MARK: - Statistic
+        static let statistic = NSLocalizedString("statistic.title", comment: "")
+
+        // MARK: - Search
+        static let search = NSLocalizedString("search.title", comment: "")
     }
     
     enum Keys {

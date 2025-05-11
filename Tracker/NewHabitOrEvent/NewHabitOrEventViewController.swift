@@ -209,7 +209,10 @@ extension NewHabitOrEventViewController {
         textField.text = tracker.name
         selectedCategory = category
         schedule = tracker.schedule
-        recordLabel.text = "\(record) \(record.dayWord)"
+        recordLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString(Constants.UIString.completedDays, comment: ""),
+            record,
+        )
         
         tableView.reloadData()
         collectionView.reloadData()
