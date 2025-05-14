@@ -161,7 +161,7 @@ private extension TrackerViewController {
         navigationItem.searchController = UISearchController()
         navigationItem.searchController?.searchBar.delegate = self
         navigationItem.searchController?.searchBar.placeholder = Constants.UIString.search
-        navigationItem.searchController?.searchBar.setValue("Отменить", forKey: "cancelButtonText")
+        navigationItem.searchController?.searchBar.setValue(Constants.UIString.cancel, forKey: "cancelButtonText")
         navigationItem.hidesSearchBarWhenScrolling = false
     }
     
