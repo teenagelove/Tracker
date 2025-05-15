@@ -30,7 +30,7 @@ private extension TabBarViewController {
             tag: 0
         )
         
-        let statisticView = StatisticViewController()
+        let statisticView = UINavigationController(rootViewController: StatisticViewController())
         statisticView.tabBarItem = UITabBarItem(
             title: Constants.UIString.statistic,
             image: .statistic,

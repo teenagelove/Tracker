@@ -17,6 +17,7 @@
 "stub.empty.filter.title" = "Ничего не найдено";
 "stub.empty.category.placeholder" = "Введите название категории";
 "stub.empty.tracker.placeholder" = "Введите название трекера";
+"stub.empty.statistic.title" = "Анализировать пока нечего";
 
 // MARK: - Tracker
 "trackers.title" = "Трекеры";
@@ -51,6 +52,10 @@
 
 // MARK: - Statistic
 "statistic.title" = "Статистика";
+"statistic.best.streak.title" = "Лучший период";
+"statistic.perfect.days.title" = "Идеальные дни";
+"statistic.completed.trackers.title" = "Трекеров завершено";
+"statistic.average.score.title" = "Среднее значение";
 
 // MARK: - Search
 "search.title" = "Поиск";

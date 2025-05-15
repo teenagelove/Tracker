@@ -64,9 +64,7 @@ final class TrackerViewController: UIViewController {
         TrackerStore(categoryStore: categoryStore, delegate: self)
     }()
     
-    private lazy var recordStore: TrackerRecordStoreProtocol = {
-        TrackerRecordStore(trackerStore: trackerStore)
-    }()
+    private lazy var recordStore = TrackerRecordStore()
     
     private var currentDate = Date() {
         didSet {

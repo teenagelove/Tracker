@@ -20,6 +20,7 @@ enum Constants {
         static let notFound = NSLocalizedString("stub.empty.filter.title", comment: "")
         static let trackerPlaceholder = NSLocalizedString("stub.empty.category.placeholder", comment: "")
         static let categoryPlaceholder = NSLocalizedString("stub.empty.tracker.placeholder", comment: "")
+        static let emptyStatistic = NSLocalizedString("stub.empty.statistic.title", comment: "")
 
         // MARK: - Tracker
         static let trackers = NSLocalizedString("trackers.title", comment: "")
@@ -55,6 +56,10 @@ enum Constants {
 
         // MARK: - Statistic
         static let statistic = NSLocalizedString("statistic.title", comment: "")
+        static let bestStreak = NSLocalizedString("statistic.best.streak.title", comment: "")
+        static let perfectDays = NSLocalizedString("statistic.perfect.days.title", comment: "")
+        static let completedTrackers = NSLocalizedString("statistic.completed.trackers.title", comment: "")
+        static let averageScore = NSLocalizedString("statistic.average.score.title", comment: "")
 
         // MARK: - Search
         static let search = NSLocalizedString("search.title", comment: "")
@@ -66,5 +71,6 @@ enum Constants {
     
     enum Insets {
         static let horizontalInset = CGFloat(16)
+        static let verticalInset = CGFloat(24)
     }
 }

@@ -17,6 +17,7 @@
 "stub.empty.filter.title" = "Nothing found";
 "stub.empty.category.placeholder" = "Enter category name";
 "stub.empty.tracker.placeholder" = "Enter tracker name";
+"stub.empty.statistic.title" = "Nothing to analyze yet";
 
 // MARK: - Tracker
 "trackers.title" = "Trackers";
@@ -51,6 +52,10 @@
 
 // MARK: - Statistic
 "statistic.title" = "Statistics";
+"statistic.best.streak.title" = "Best streak";
+"statistic.perfect.days.title" = "Perfect days";
+"statistic.completed.trackers.title" = "Trackers completed";
+"statistic.average.score.title" = "Average value";
 
 // MARK: - Search
 "search.title" = "Search";
