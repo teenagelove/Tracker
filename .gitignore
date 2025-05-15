@@ -7,7 +7,7 @@ xcuserdata/
 .DS*
 Pods/
 *.xcworkspace
-*.xcsheme
+*.xcscheme
 ## Obj-C/Swift specific
 *.hmap
 
