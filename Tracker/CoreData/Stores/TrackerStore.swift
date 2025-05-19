@@ -24,7 +24,7 @@ protocol TrackerStoreProtocol {
     var numberOfSections: Int { get }
     var trackers: [Tracker] { get }
     func nameOfSection(_ section: Int) -> String
-    func updateFilter(currentDate: Date, searchText: String?)
+    func updateFilter(currentDate: Date, searchText: String?, filterType: FilterType)
     func numbersOfRowsInSections(in section: Int) -> Int
     func tracker(at indexPath: IndexPath) -> Tracker?
     func tracker(by id: UUID) -> TrackerCoreData?
@@ -122,7 +122,7 @@ extension TrackerStore: TrackerStoreProtocol {
     }
     
     
-    func updateFilter(currentDate: Date, searchText: String?) {
+    func updateFilter(currentDate: Date, searchText: String?, filterType: FilterType) {
         var predicates: [NSPredicate] = []
         
         if let searchText, !searchText.isEmpty {
@@ -133,23 +133,58 @@ extension TrackerStore: TrackerStoreProtocol {
         let weekday = calendar.component(.weekday, from: currentDate)
         let weekdayStr = "\(weekday)"
         let startOfDay = calendar.startOfDay(for: currentDate)
+        let today = calendar.startOfDay(for: Date())
         
-        // Предикат отображает трекеры по дням недели из их расписания.
-        // И если у трекера schedule == nil (нерегулярное событие), тогда:
-        // 1. Он не выполнен ни разу - отображаем каждый день
-        // 2. Если был выполнен хотя бы раз - отображаем только в день выполнения.
-        let predicate = NSPredicate(
-            format: """
-            (schedule != nil AND schedule CONTAINS[c] %@) OR
-            (schedule == nil AND (
-                SUBQUERY(records, $r, $r.tracker == SELF).@count == 0 OR
+        switch filterType {
+        case .all:
+            let schedulePredicate = NSPredicate(
+                format: """
+                (schedule != nil AND schedule CONTAINS[c] %@) OR
+                (schedule == nil AND (
+                    SUBQUERY(records, $r, $r.tracker == SELF).@count == 0 OR
+                    SUBQUERY(records, $r, $r.date == %@).@count > 0
+                ))
+                """,
+                weekdayStr, startOfDay as NSDate
+            )
+            predicates.append(schedulePredicate)
+            
+        case .today:
+            let todayWeekday = calendar.component(.weekday, from: today)
+            let todayWeekdayStr = "\(todayWeekday)"
+            
+            let todayPredicate = NSPredicate(
+                format: """
+                (schedule != nil AND schedule CONTAINS[c] %@) OR
+                (schedule == nil AND (
+                    SUBQUERY(records, $r, $r.tracker == SELF).@count == 0 OR
+                    SUBQUERY(records, $r, $r.date == %@).@count > 0
+                ))
+                """,
+                todayWeekdayStr, today as NSDate
+            )
+            predicates.append(todayPredicate)
+            
+        case .completed:
+            let completedPredicate = NSPredicate(
+                format: """
+                ((schedule != nil AND schedule CONTAINS[c] %@) OR schedule == nil) AND
                 SUBQUERY(records, $r, $r.date == %@).@count > 0
-            ))
-            """,
-            weekdayStr, startOfDay as NSDate
-        )
-        
-        predicates.append(predicate)
+                """,
+                weekdayStr, startOfDay as NSDate
+            )
+            predicates.append(completedPredicate)
+            
+        case .uncompleted:
+            let uncompletedPredicate = NSPredicate(
+                format: """
+                ((schedule != nil AND schedule CONTAINS[c] %@) OR schedule == nil) AND
+                SUBQUERY(records, $r, $r.date == %@).@count == 0
+                """,
+                weekdayStr, startOfDay as NSDate
+            )
+            predicates.append(uncompletedPredicate)
+        }
         
         fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
         
@@ -167,6 +202,7 @@ extension TrackerStore: TrackerStoreProtocol {
             print("Failed to fetch trackers: \(error)")
         }
     }
+
     
     func addNewTracker(tracker: Tracker, category: TrackerCategory) throws {
         let categoryEntity = try categoryStore.fetchOrCreateCategory(from: category)

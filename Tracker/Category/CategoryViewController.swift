@@ -43,6 +43,7 @@ final class CategoryViewController: UIViewController {
         tableView.delegate = self
         tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.tableHeaderView = UIView()

@@ -55,7 +55,9 @@ extension FilterCell {
 // MARK: - Setup Methods
 private extension FilterCell {
     func setupUI(){
-        self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        self.backgroundColor = .ypLightGray
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = .systemGray
         contentView.addSubviews(titleLabel)
         setupConstraints()
     }

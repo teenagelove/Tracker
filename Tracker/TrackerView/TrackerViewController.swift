@@ -59,7 +59,7 @@ final class TrackerViewController: UIViewController {
         let button = UIButton(type: .system)
         button.addTarget(self, action: #selector(filtersButtonDidTap), for: .primaryActionTriggered)
         button.setTitle(Constants.UIString.filters, for: .normal)
-        button.setTitleColor(.ypBackground, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .regular
         button.backgroundColor = .typeBlue
         button.layer.masksToBounds = true
@@ -105,6 +105,10 @@ final class TrackerViewController: UIViewController {
 private extension TrackerViewController {
     @objc func didPickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
+        
+        if currentFilterType == .today {
+            currentFilterType = .all
+        }
     }
     
     @objc func addTracker() {
@@ -131,7 +135,7 @@ private extension TrackerViewController {
 private extension TrackerViewController {
     func filterTrackers() {
         let text = navigationItem.searchController?.searchBar.text ?? ""
-        trackerStore.updateFilter(currentDate: currentDate, searchText: text)
+        trackerStore.updateFilter(currentDate: currentDate, searchText: text, filterType: currentFilterType)
         updateEmptyStateVisibility()
         updateFiltersButtonVisibility()
     }
@@ -210,6 +214,10 @@ private extension TrackerViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: SupplementaryView.reuseIdentifier
         )
+        
+        let bottomInset: CGFloat = 66
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        collectionView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
     }
     
     func setupConstraints() {
@@ -457,7 +465,7 @@ extension TrackerViewController: TrackerCategoryStoreDelegate {
 // MARK: - FiltersViewControllerDelegate
 extension TrackerViewController: FiltersViewControllerDelegate {
     func didSelectFilter(_ filterType: FilterType) {
-        self.currentFilterType = filterType
+        currentFilterType = filterType
         
         if filterType == .today {
             datePicker.date = Date()

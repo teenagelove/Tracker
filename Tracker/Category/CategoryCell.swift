@@ -55,7 +55,9 @@ extension CategoryCell {
 // MARK: - Setup Methods
 private extension CategoryCell {
     func setupUI(){
-        self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        backgroundColor = .ypLightGray
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = .systemGray
         contentView.addSubviews(titleLabel)
         setupConstraints()
     }

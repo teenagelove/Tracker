@@ -20,6 +20,7 @@ final class FiltersViewController: UIViewController {
         tableView.delegate = self
         tableView.register(FilterCell.self, forCellReuseIdentifier: FilterCell.reuseIdentifier)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.tableHeaderView = UIView()

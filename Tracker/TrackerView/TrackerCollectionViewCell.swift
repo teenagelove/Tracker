@@ -52,7 +52,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.setImage(.plusRecord, for: .normal)
         button.contentMode = .center
-        button.tintColor = .ypWhite
+        button.tintColor = .ypBackground
         button.backgroundColor = .typeSalmon
         button.layer.cornerRadius = 17
         button.layer.masksToBounds = true

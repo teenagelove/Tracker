@@ -32,7 +32,7 @@ final class NewHabitOrEventViewController: UIViewController {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.delegate = self
-        textField.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        textField.backgroundColor = .ypLightGray
         textField.placeholder = Constants.UIString.trackerPlaceholder
         textField.textAlignment = .left
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
@@ -55,6 +55,7 @@ final class NewHabitOrEventViewController: UIViewController {
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.backgroundColor = .ypBackground
         tableView.isScrollEnabled = false
         return tableView
