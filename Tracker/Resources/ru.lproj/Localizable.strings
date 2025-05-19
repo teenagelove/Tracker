@@ -59,3 +59,11 @@
 
 // MARK: - Search
 "search.title" = "Поиск";
+
+
+// MARK: - Filters
+"filters.title" = "Фильтры";
+"filters.all.trackers.title" = "Все трекеры";
+"filters.today.trackers.title" = "Трекеры на сегодня";
+"filters.completed.trackers.title" = "Завершенные";
+"filters.not.completed.trackers.title" = "Не завершенные";

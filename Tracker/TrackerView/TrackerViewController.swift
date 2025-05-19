@@ -55,6 +55,18 @@ final class TrackerViewController: UIViewController {
         return tapGesture
     }()
     
+    private lazy var filtersButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.addTarget(self, action: #selector(filtersButtonDidTap), for: .primaryActionTriggered)
+        button.setTitle(Constants.UIString.filters, for: .normal)
+        button.setTitleColor(.ypBackground, for: .normal)
+        button.titleLabel?.font = .regular
+        button.backgroundColor = .typeBlue
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 16
+        return button
+    }()
+    
     // MARK: - Properties
     private lazy var categoryStore: TrackerCategoryStore = {
         TrackerCategoryStore(delegate: self)
@@ -67,6 +79,15 @@ final class TrackerViewController: UIViewController {
     private lazy var recordStore = TrackerRecordStore()
     
     private var currentDate = Date() {
+        didSet {
+            filterTrackers()
+        }
+    }
+    
+    private var currentFilterType: FilterType = {
+        let savedFilterValue = UserDefaults.standard.string(forKey: FilterType.userDefaultsKey) ?? FilterType.all.rawValue
+        return FilterType(rawValue: savedFilterValue) ?? .all
+    }() {
         didSet {
             filterTrackers()
         }
@@ -96,6 +117,14 @@ private extension TrackerViewController {
         navigationItem.searchController?.searchBar.endEditing(true)
         navigationItem.searchController?.dismiss(animated: true)
     }
+    
+    @objc func filtersButtonDidTap() {
+        let filtersViewController = FiltersViewController(
+            selectedFilterType: currentFilterType,
+            delegate: self
+        )
+        present(UINavigationController(rootViewController: filtersViewController), animated: true)
+    }
 }
 
 // MARK: - Private Methods
@@ -104,6 +133,7 @@ private extension TrackerViewController {
         let text = navigationItem.searchController?.searchBar.text ?? ""
         trackerStore.updateFilter(currentDate: currentDate, searchText: text)
         updateEmptyStateVisibility()
+        updateFiltersButtonVisibility()
     }
     
     func updateEmptyStateVisibility() {
@@ -120,6 +150,10 @@ private extension TrackerViewController {
         }
     }
     
+    func updateFiltersButtonVisibility() {
+        filtersButton.isHidden = categoryStore.categories.count == 0 && trackerStore.trackers.count == 0
+    }
+    
     func isTrackerCompletedToday(id: UUID) -> Bool {
         recordStore.isTrackerCompletedToday(id: id, date: currentDate)
     }
@@ -133,7 +167,7 @@ private extension TrackerViewController {
 private extension TrackerViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
-        view.addSubviews(collectionView, emptyStateStackView)
+        view.addSubviews(collectionView, emptyStateStackView, filtersButton)
         view.addGestureRecognizer(tapGesture)
         setupNavigationBar()
         setupCollectionView()
@@ -190,6 +224,11 @@ private extension TrackerViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filtersButton.widthAnchor.constraint(equalToConstant: 114),
+            filtersButton.heightAnchor.constraint(equalToConstant: 50),
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 }
@@ -411,6 +450,20 @@ extension TrackerViewController: TrackerCategoryStoreDelegate {
             collectionView.deleteSections(update.deletedIndexes)
             collectionView.insertSections(update.insertedIndexes)
             collectionView.reloadSections(update.updatedIndexes)
+        }
+    }
+}
+
+// MARK: - FiltersViewControllerDelegate
+extension TrackerViewController: FiltersViewControllerDelegate {
+    func didSelectFilter(_ filterType: FilterType) {
+        self.currentFilterType = filterType
+        
+        if filterType == .today {
+            datePicker.date = Date()
+            currentDate = datePicker.date
+        } else {
+            filterTrackers()
         }
     }
 }

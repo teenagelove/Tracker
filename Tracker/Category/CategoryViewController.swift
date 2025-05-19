@@ -65,11 +65,13 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Properties
     private var viewModel: CategoryViewModelProtocol = CategoryViewModel()
+    private let selectedCategory: TrackerCategory?
     private var selectedIndexPath: IndexPath?
     private let categorySelectedCompletion: (TrackerCategory) -> Void
     
     // MARK: - Initializer
-    init(completion: @escaping (TrackerCategory) -> Void) {
+    init(selectedCategory: TrackerCategory?, completion: @escaping (TrackerCategory) -> Void) {
+        self.selectedCategory = selectedCategory
         self.categorySelectedCompletion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -80,8 +82,8 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindViewModel()
         setupUI()
+        bindViewModel()
         updateStubsVisibility()
     }
 }
@@ -104,8 +106,19 @@ private extension CategoryViewController {
     func bindViewModel() {
         viewModel.categoriesBinding = { [weak self] _ in
             guard let self else { return }
+            
+            if let selectedCategory = self.selectedCategory {
+                if let index = self.viewModel.categories.firstIndex(where: { $0.name == selectedCategory.name }) {
+                    self.selectedIndexPath = IndexPath(row: index, section: 0)
+                }
+            }
+            
             tableView.reloadData()
             updateStubsVisibility()
+        }
+        
+        if let binding = viewModel.categoriesBinding {
+            binding(viewModel.categories)
         }
     }
 }
@@ -202,6 +215,7 @@ extension CategoryViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
         tableView.deselectRow(at: indexPath, animated: true)
         
         if selectedIndexPath == indexPath {
@@ -212,7 +226,13 @@ extension CategoryViewController: UITableViewDelegate {
             let selectedCategory = viewModel.categories[indexPath.row]
             categorySelectedCompletion(selectedCategory)
             
-            navigationController?.popViewController(animated: true)
+            cell.accessoryType = .checkmark
+            
+            tableView.reloadData()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }
         }
     }
     

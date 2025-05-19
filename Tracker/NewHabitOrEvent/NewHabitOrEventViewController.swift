@@ -428,7 +428,7 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
-            let categoryViewController = CategoryViewController { [weak self] category in
+            let categoryViewController = CategoryViewController(selectedCategory: selectedCategory) { [weak self] category in
                 guard let self else { return }
                 self.selectedCategory = category
                 

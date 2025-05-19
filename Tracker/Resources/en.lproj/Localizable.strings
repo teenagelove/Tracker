@@ -59,3 +59,10 @@
 
 // MARK: - Search
 "search.title" = "Search";
+
+// MARK: - Filters
+"filters.title" = "Filters";
+"filters.all.trackers.title" = "All trackers";
+"filters.today.trackers.title" = "Trackers for today";
+"filters.completed.trackers.title" = "Completed";
+"filters.not.completed.trackers.title" = "Not completed";

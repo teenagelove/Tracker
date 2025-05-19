@@ -63,10 +63,18 @@ enum Constants {
 
         // MARK: - Search
         static let search = NSLocalizedString("search.title", comment: "")
+        
+        // MARK: - Filters
+        static let filters = NSLocalizedString("filters.title", comment: "")
+        static let allTrackersFilter = NSLocalizedString("filters.all.trackers.title", comment: "")
+        static let todayTrackersFilter = NSLocalizedString("filters.today.trackers.title", comment: "")
+        static let completedTrackersFilter = NSLocalizedString("filters.completed.trackers.title", comment: "")
+        static let notCompletedTrackersFilter = NSLocalizedString("filters.not.completed.trackers.title", comment: "")
     }
     
     enum Keys {
         static let isShowedOnboarding = "isShowedOnboarding"
+        static let selectedFilterType = "selectedFilterType"
     }
     
     enum Insets {
