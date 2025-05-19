@@ -114,6 +114,7 @@ private extension TrackerViewController {
     @objc func addTracker() {
         let creating = CreationTrackerViewController(delegate: self)
         let navigationController = UINavigationController(rootViewController: creating)
+        AnalyticsService.report(event: "click", screen: "Main", item: "add_track")
         present(navigationController, animated: true)
     }
     
@@ -127,6 +128,7 @@ private extension TrackerViewController {
             selectedFilterType: currentFilterType,
             delegate: self
         )
+        AnalyticsService.report(event: "click", screen: "Main", item: "filter")
         present(UINavigationController(rootViewController: filtersViewController), animated: true)
     }
 }
@@ -332,6 +334,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
                 image: .pencil
             ) { _ in
                 self.editTracker(at: firstIndexPath)
+                AnalyticsService.report(event: "click", screen: "Main", item: "edit")
             }
             
             let delete = UIAction(
@@ -340,6 +343,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
                 attributes: .destructive
             ) { _ in
                 self.deleteTracker(at: firstIndexPath)
+                AnalyticsService.report(event: "click", screen: "Main", item: "delete")
             }
             
             return UIMenu(children: [pin, edit, delete])
@@ -406,6 +410,8 @@ extension TrackerViewController: TrackerCellDelegate {
         } else {
             try? recordStore.removeTrackerRecord(record)
         }
+        
+        AnalyticsService.report(event: "click", screen: "Main", item: "track")
         
         collectionView.reloadItems(at: [indexPath])
     }

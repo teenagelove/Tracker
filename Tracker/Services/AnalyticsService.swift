@@ -16,7 +16,13 @@ struct AnalyticsService {
         YMMYandexMetrica.activate(with: configuration)
     }
     
-    static func report(event: String, params: [AnyHashable: Any]) {
+    static func report(event: String, screen: String, item: String? = nil) {
+        var params: [AnyHashable: Any] = [screen: screen]
+        
+        if let item = item {
+            params["item"] = item
+        }
+        
         YMMYandexMetrica.reportEvent(event, parameters: params) { error in
             print("Error reporting event: \(error.localizedDescription)")
         }
