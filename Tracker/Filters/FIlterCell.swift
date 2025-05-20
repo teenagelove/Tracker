@@ -1,13 +1,13 @@
 //
-//  CategoryCell.swift
+//  FIlterCell.swift
 //  Tracker
 //
-//  Created by Danil Kazakov on 28.04.2025.
+//  Created by Danil Kazakov on 17.05.2025.
 //
 
 import UIKit
 
-final class CategoryCell: UITableViewCell  {
+final class FilterCell: UITableViewCell  {
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -16,7 +16,7 @@ final class CategoryCell: UITableViewCell  {
     }()
     
     // MARK: - Properties
-    static let reuseIdentifier = "CategoryCell"
+    static let reuseIdentifier = "FilterCell"
     
     // MARK: - Inits
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -38,7 +38,7 @@ final class CategoryCell: UITableViewCell  {
 }
 
 // MARK: - Public Methods
-extension CategoryCell {
+extension FilterCell {
     func configure(with title: String) {
         self.titleLabel.text = title
     }
@@ -53,9 +53,9 @@ extension CategoryCell {
 }
 
 // MARK: - Setup Methods
-private extension CategoryCell {
+private extension FilterCell {
     func setupUI(){
-        backgroundColor = .ypLightGray
+        self.backgroundColor = .ypLightGray
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = .systemGray
         contentView.addSubviews(titleLabel)

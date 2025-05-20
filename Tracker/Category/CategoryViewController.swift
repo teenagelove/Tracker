@@ -43,6 +43,7 @@ final class CategoryViewController: UIViewController {
         tableView.delegate = self
         tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.tableHeaderView = UIView()
@@ -65,11 +66,13 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Properties
     private var viewModel: CategoryViewModelProtocol = CategoryViewModel()
+    private let selectedCategory: TrackerCategory?
     private var selectedIndexPath: IndexPath?
     private let categorySelectedCompletion: (TrackerCategory) -> Void
     
     // MARK: - Initializer
-    init(completion: @escaping (TrackerCategory) -> Void) {
+    init(selectedCategory: TrackerCategory?, completion: @escaping (TrackerCategory) -> Void) {
+        self.selectedCategory = selectedCategory
         self.categorySelectedCompletion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -80,8 +83,8 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindViewModel()
         setupUI()
+        bindViewModel()
         updateStubsVisibility()
     }
 }
@@ -104,8 +107,19 @@ private extension CategoryViewController {
     func bindViewModel() {
         viewModel.categoriesBinding = { [weak self] _ in
             guard let self else { return }
+            
+            if let selectedCategory = self.selectedCategory {
+                if let index = self.viewModel.categories.firstIndex(where: { $0.name == selectedCategory.name }) {
+                    self.selectedIndexPath = IndexPath(row: index, section: 0)
+                }
+            }
+            
             tableView.reloadData()
             updateStubsVisibility()
+        }
+        
+        if let binding = viewModel.categoriesBinding {
+            binding(viewModel.categories)
         }
     }
 }
@@ -202,6 +216,7 @@ extension CategoryViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
         tableView.deselectRow(at: indexPath, animated: true)
         
         if selectedIndexPath == indexPath {
@@ -212,16 +227,20 @@ extension CategoryViewController: UITableViewDelegate {
             let selectedCategory = viewModel.categories[indexPath.row]
             categorySelectedCompletion(selectedCategory)
             
-            navigationController?.popViewController(animated: true)
+            cell.accessoryType = .checkmark
+            
+            tableView.reloadData()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        let category = viewModel.categories[indexPath.row]
-        
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let editAction = UIAction(
-                title: Constants.UIString.edit, image: .pencil,
+                title: Constants.UIString.edit, image: .pencil
             ) { [weak self] _ in
                 self?.editCategory(at: indexPath)
             }
@@ -230,10 +249,27 @@ extension CategoryViewController: UITableViewDelegate {
                 title: Constants.UIString.delete, image: .trash,
                 attributes: .destructive
             ) { [weak self] _ in
-                try? self?.viewModel.deleteCategory(category)
+                self?.deleteCategory(at: indexPath)
             }
             
             return UIMenu(children: [editAction, deleteAction])
         }
+    }
+    
+    private func deleteCategory(at indexPath: IndexPath) {
+        let category = viewModel.categories[indexPath.row]
+        
+        let alert = UIAlertController(
+            title: Constants.UIString.deleteCategoryQuestion,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: Constants.UIString.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.UIString.delete, style: .destructive) { [weak self] _ in
+            try? self?.viewModel.deleteCategory(category)
+        })
+        
+        present(alert, animated: true)
     }
 }

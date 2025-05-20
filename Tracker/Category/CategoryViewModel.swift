@@ -42,7 +42,7 @@ final class CategoryViewModel {
 // MARK: - Private Methods
 private extension CategoryViewModel {
     func fetchCategoriesFromStore() -> [TrackerCategory] {
-        trackerCategoryStore.fetchCategories() ?? []
+        trackerCategoryStore.fetchCategories()
     }
 }
 

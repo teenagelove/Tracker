@@ -18,7 +18,7 @@ struct TrackerCategoryStoreUpdate {
 protocol TrackerCategoryStoreProtocol {
     var categories: [String] { get }
     func numberOfRowsInSection(_ section: Int) -> Int
-    func fetchCategories() -> [TrackerCategory]?
+    func fetchCategories() -> [TrackerCategory]
     func fetchOrCreateCategory(from category: TrackerCategory) throws -> TrackerCategoryCoreData
     func deleteCategory(_ category: TrackerCategory) throws
     func updateCategory(oldName: String, newName: String) throws
@@ -73,13 +73,15 @@ private extension TrackerCategoryStore {
         }
         
         let schedule = trackerCoreData.schedule.toWeekSet()
+        let isPinned = trackerCoreData.isPinned
         
         return Tracker(
             id: id,
             name: name,
             color: color as? UIColor ?? .clear,
             emoji: emoji,
-            schedule: schedule
+            schedule: schedule,
+            isPinned: isPinned
         )
     }
 }
@@ -90,7 +92,8 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         let request = TrackerCategoryCoreData.fetchRequest()
         do {
             let results = try context.fetch(request)
-            return results.map { $0.name ?? "" }
+            let filteredResult = results.filter { $0.name != Constants.UIString.pinned }
+            return filteredResult.map { $0.name ?? "" }
         } catch {
             print("Failed to fetch category names: \(error)")
             return []
@@ -101,12 +104,18 @@ extension TrackerCategoryStore: TrackerCategoryStoreProtocol {
         fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
-    func fetchCategories() -> [TrackerCategory]? {
+    func fetchCategories() -> [TrackerCategory] {
         guard let fetchedObjects = fetchedResultsController.fetchedObjects else {
             return []
         }
-        return fetchedObjects.map { categoryCoreData in
-            let trackers = (categoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap { makeTracker(from: $0) } ?? []
+
+        let filteredObjects = fetchedObjects.filter { $0.name != Constants.UIString.pinned }
+
+        return filteredObjects.map { categoryCoreData in
+            let trackers = (categoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {
+                makeTracker(from: $0)
+            } ?? []
+
             return TrackerCategory(name: categoryCoreData.name ?? "", trackers: trackers)
         }
     }

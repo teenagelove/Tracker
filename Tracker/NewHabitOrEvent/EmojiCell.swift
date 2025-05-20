@@ -48,7 +48,7 @@ private extension EmojiCell {
     func setupBGView() {
         let selectedBG = UIView()
         selectedBG.layer.cornerRadius = 8
-        selectedBG.backgroundColor = UIColor.ypLightGray
+        selectedBG.backgroundColor = UIColor.ypLightGray.withAlphaComponent(1)
         self.selectedBackgroundView = selectedBG
     }
 }

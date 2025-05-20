@@ -5,6 +5,9 @@
 ## User settings
 xcuserdata/
 .DS*
+Pods/
+*.xcworkspace
+*.xcscheme
 ## Obj-C/Swift specific
 *.hmap
 

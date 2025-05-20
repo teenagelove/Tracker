@@ -77,7 +77,7 @@ extension NewHabitOrEventCell {
 private extension NewHabitOrEventCell {
     func setupUI(){
         accessoryType = .disclosureIndicator
-        backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        backgroundColor = .ypLightGray
         contentView.addSubviews(verticalStack)
         setupConstraints()
     }
