@@ -212,7 +212,7 @@ extension NewHabitOrEventViewController {
         schedule = tracker.schedule
         recordLabel.text = String.localizedStringWithFormat(
             NSLocalizedString(Constants.UIString.completedDays, comment: ""),
-            record,
+            record
         )
         
         tableView.reloadData()

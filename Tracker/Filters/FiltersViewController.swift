@@ -78,7 +78,7 @@ private extension FiltersViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Insets.verticalInset),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Insets.horizontalInset),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Insets.horizontalInset),
-            tableView.heightAnchor.constraint(equalToConstant: CGFloat(FilterType.allCases.count * 75)),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(FilterType.allCases.count * 75))
         ])
     }
 }

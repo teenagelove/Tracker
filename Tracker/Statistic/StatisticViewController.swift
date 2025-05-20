@@ -155,7 +155,7 @@ private extension StatisticViewController {
             
             statisticStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Insets.horizontalInset),
             statisticStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Insets.horizontalInset),
-            statisticStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            statisticStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }

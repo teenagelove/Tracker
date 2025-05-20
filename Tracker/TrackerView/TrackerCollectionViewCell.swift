@@ -92,7 +92,7 @@ extension TrackerCollectionViewCell {
         cardView.backgroundColor = tracker.color
         recordLabel.text = String.localizedStringWithFormat(
             NSLocalizedString(Constants.UIString.completedDays, comment: ""),
-            viewModel.completedDays,
+            viewModel.completedDays
         )
         plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji

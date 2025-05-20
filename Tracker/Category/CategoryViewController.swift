@@ -240,7 +240,7 @@ extension CategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let editAction = UIAction(
-                title: Constants.UIString.edit, image: .pencil,
+                title: Constants.UIString.edit, image: .pencil
             ) { [weak self] _ in
                 self?.editCategory(at: indexPath)
             }
