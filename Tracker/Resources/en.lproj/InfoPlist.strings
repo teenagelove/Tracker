@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  Tracker
+
+  Created by Danil Kazakov on 11.05.2025.
+  
+*/
+
+CFBundleDisplayName = "Tracker";

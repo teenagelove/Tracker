@@ -59,8 +59,8 @@ extension ScheduleTableViewCell {
 // MARK: - Setup Methods
 private extension ScheduleTableViewCell {
     func setupUI(){
-        self.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
-        self.accessoryView = switchControl
+        backgroundColor = .ypLightGray
+        accessoryView = switchControl
         contentView.addSubviews(titleLabel)
         setupConstraints()
     }

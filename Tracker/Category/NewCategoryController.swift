@@ -12,7 +12,7 @@ final class NewCategoryController: UIViewController {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.delegate = self
-        textField.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        textField.backgroundColor = .ypLightGray
         textField.placeholder = Constants.UIString.categoryPlaceholder
         textField.textAlignment = .left
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))

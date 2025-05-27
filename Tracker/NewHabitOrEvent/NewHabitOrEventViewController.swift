@@ -19,6 +19,10 @@ enum Section: Int, CaseIterable {
     }
 }
 
+enum Mode: Int {
+    case create, edit
+}
+
 protocol NewHabitOrEventViewControllerDelegate: AnyObject {
     func didReceiveSchedule(schedule: Set<Week>)
 }
@@ -28,7 +32,7 @@ final class NewHabitOrEventViewController: UIViewController {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.delegate = self
-        textField.backgroundColor = .ypLightGray.withAlphaComponent(0.3)
+        textField.backgroundColor = .ypLightGray
         textField.placeholder = Constants.UIString.trackerPlaceholder
         textField.textAlignment = .left
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
@@ -51,6 +55,7 @@ final class NewHabitOrEventViewController: UIViewController {
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.backgroundColor = .ypBackground
         tableView.isScrollEnabled = false
         return tableView
@@ -134,11 +139,22 @@ final class NewHabitOrEventViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var recordLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .ypAccent
+        label.font = .onboarding
+        label.textAlignment = .center
+        label.isHidden = mode == .create
+        return label
+    }()
+    
     
     // MARK: - Properties
     private weak var delegate: TrackerViewControllerDelegate?
     private var isHabit: Bool
     private var schedule: Set<Week> = []
+    private var mode: Mode
+    private var editingTracker: Tracker?
     
     private var selectedCategory: TrackerCategory? {
         didSet {
@@ -169,8 +185,9 @@ final class NewHabitOrEventViewController: UIViewController {
                                      .typeBrightGreen]
     
     // MARK: - Initializate
-    init(isHabit: Bool, delegate: TrackerViewControllerDelegate) {
+    init(isHabit: Bool, mode: Mode, delegate: TrackerViewControllerDelegate) {
         self.isHabit = isHabit
+        self.mode = mode
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -186,6 +203,28 @@ final class NewHabitOrEventViewController: UIViewController {
     }
 }
 
+// MARK: - Public Methods
+extension NewHabitOrEventViewController {
+    func setTracker(tracker: Tracker, category: TrackerCategory, record: Int) {
+        editingTracker = tracker
+        textField.text = tracker.name
+        selectedCategory = category
+        schedule = tracker.schedule
+        recordLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString(Constants.UIString.completedDays, comment: ""),
+            record
+        )
+        
+        tableView.reloadData()
+        collectionView.reloadData()
+        
+        selectEmoji(tracker.emoji)
+        selectColor(tracker.color)
+        
+        updateStateApplyButton()
+    }
+}
+
 // MARK: - Actions
 private extension NewHabitOrEventViewController {
     @objc func dismissKeyboard() {
@@ -198,21 +237,44 @@ private extension NewHabitOrEventViewController {
     
     @objc func applyButtonDidTap() {
         guard let selectedCategory else { return }
+        
+        let trackerID = editingTracker?.id ?? UUID()
+        let isPinned = editingTracker?.isPinned ?? false
+        
         let tracker = Tracker(
-            id: UUID(),
+            id: trackerID,
             name: textField.text?.trimmingCharacters(in: .whitespaces) ?? "",
             color: selectedColor.color ?? .typeSalmon,
             emoji: selectedEmoji.emoji ?? "🍺",
-            schedule: schedule
+            schedule: schedule,
+            isPinned: isPinned
         )
         
-        delegate?.didReceiveNewTracker(tracker: tracker, category: selectedCategory)
+        let isEdit = mode == .edit
+        
+        delegate?.didReceiveNewTracker(tracker: tracker, category: selectedCategory, isEdit: isEdit)
         navigationController?.dismiss(animated: true)
     }
 }
 
 // MARK: - Private Methods
 private extension NewHabitOrEventViewController {
+    func selectEmoji(_ emoji: String) {
+        guard let emojiIndex = emojis.firstIndex(of: emoji) else { return }
+        
+        let emojiIndexPath = IndexPath(item: emojiIndex, section: Section.emoji.rawValue)
+        selectedEmoji = (emoji, emojiIndexPath)
+        collectionView.selectItem(at: emojiIndexPath, animated: false, scrollPosition: [])
+    }
+    
+    func selectColor(_ color: UIColor) {
+        guard let colorIndex = colors.firstIndex(where: { $0.isEqual(color) }) else { return }
+        
+        let colorIndexPath = IndexPath(item: colorIndex, section: Section.color.rawValue)
+        selectedColor = (color, colorIndexPath)
+        collectionView.selectItem(at: colorIndexPath, animated: false, scrollPosition: [])
+    }
+    
     func getTitleFromRow(for row: Int) -> String {
         switch row {
         case 0:
@@ -272,26 +334,36 @@ private extension NewHabitOrEventViewController {
     func setupUI() {
         view.backgroundColor = .ypBackground
         setupNavigationBar()
-        view.addSubviews(textField, tableView, buttonsStack, collectionView)
+        view.addSubviews(textField, recordLabel, tableView, buttonsStack, collectionView)
         view.addGestureRecognizer(tapGesture)
         setupConstraints()
     }
     
     func setupNavigationBar() {
-        let title = isHabit ? Constants.UIString.newHabit : Constants.UIString.newEvent
+        let title = {
+            if self.isHabit && self.mode == .create {
+                return Constants.UIString.newHabit
+            } else if self.isHabit && self.mode == .edit {
+                return Constants.UIString.editTracker
+            } else if !self.isHabit && self.mode == .create {
+                return Constants.UIString.newEvent
+            } else {
+                return Constants.UIString.editEvent
+            }
+        }()
+        
         navigationItem.title = title
         navigationItem.hidesBackButton = true
     }
     
     func setupConstraints() {
-        NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+        var constraints: [NSLayoutConstraint] = [
+            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Insets.horizontalInset),
+            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Insets.horizontalInset),
             textField.heightAnchor.constraint(equalToConstant: 75),
             
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Insets.horizontalInset),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Insets.horizontalInset),
             tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
             
             tableView.heightAnchor.constraint(equalToConstant: isHabit ? 75 * 2 : 75),
@@ -304,8 +376,24 @@ private extension NewHabitOrEventViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 50),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: buttonsStack.topAnchor, constant: -16),
-        ])
+            collectionView.bottomAnchor.constraint(equalTo: buttonsStack.topAnchor, constant: -Constants.Insets.horizontalInset),
+            
+            recordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Insets.horizontalInset),
+            recordLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Insets.horizontalInset),
+            recordLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24)
+        ]
+        
+        if mode == .create {
+            constraints.append(
+                textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24)
+            )
+        } else {
+            constraints.append(
+                textField.topAnchor.constraint(equalTo: recordLabel.bottomAnchor, constant: 40)
+            )
+        }
+        
+        NSLayoutConstraint.activate(constraints)
     }
 }
 
@@ -341,7 +429,7 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
-            let categoryViewController = CategoryViewController { [weak self] category in
+            let categoryViewController = CategoryViewController(selectedCategory: selectedCategory) { [weak self] category in
                 guard let self else { return }
                 self.selectedCategory = category
                 

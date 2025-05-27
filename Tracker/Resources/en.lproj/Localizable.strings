@@ -1,0 +1,68 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Danil Kazakov on 11.05.2025.
+  
+*/
+
+// MARK: - Onboarding
+"onboarding.first.title" = "Track only what you want";
+"onboarding.second.title" = "Even if it’s  not water or yoga";
+"onboarding.skip" = "Now that’s some tech!";
+
+// MARK: - Stubs
+"stub.empty.tracker.title" = "What do you want to track?";
+"stub.empty.category.text" = "You can group habits and events by meaning";
+"stub.empty.filter.title" = "Nothing found";
+"stub.empty.category.placeholder" = "Enter category name";
+"stub.empty.tracker.placeholder" = "Enter tracker name";
+"stub.empty.statistic.title" = "Nothing to analyze yet";
+
+// MARK: - Tracker
+"trackers.title" = "Trackers";
+"tracker.title" = "Habit";
+"tracker.emoji" = "Emoji";
+"tracker.color" = "Color";
+"tracker.event.title" = "Irregular event";
+"tracker.new.title" = "New habit";
+"tracker.event.new.title" = "New irregular event";
+"tracker.edit.title" = "Edit habit";
+"tracker.edit.event.title" = "Edit event";
+"tracker.create.title" = "Create tracker";
+"tracker.schedule" = "Schedule";
+"delete.tracker.question" = "Are you sure you want to delete this tracker?";
+
+// MARK: - Category
+"category.title" = "Category";
+"default.category.title" = "Beer place";
+"new.category.title" = "New category";
+"add.new.category" = "Add category";
+"delete.category.question" = "Are you sure this category isn’t needed?";
+
+// MARK: - Actions
+"action.apply" = "Apply";
+"action.cancel" = "Cancel";
+"action.submit" = "Done";
+"action.edit" = "Edit";
+"action.delete" = "Delete";
+"action.pin" = "Pin";
+"action.unpin" = "Unpin";
+"action.pinned" = "Pinned";
+
+// MARK: - Statistic
+"statistic.title" = "Statistics";
+"statistic.best.streak.title" = "Best streak";
+"statistic.perfect.days.title" = "Perfect days";
+"statistic.completed.trackers.title" = "Trackers completed";
+"statistic.average.score.title" = "Average value";
+
+// MARK: - Search
+"search.title" = "Search";
+
+// MARK: - Filters
+"filters.title" = "Filters";
+"filters.all.trackers.title" = "All trackers";
+"filters.today.trackers.title" = "Trackers for today";
+"filters.completed.trackers.title" = "Completed";
+"filters.not.completed.trackers.title" = "Not completed";

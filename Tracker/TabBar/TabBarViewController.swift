@@ -14,6 +14,16 @@ final class TabBarViewController: UITabBarController {
         setupControllers()
         addBorder()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.report(event: "open", screen: "Main")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        AnalyticsService.report(event: "close", screen: "Main")
+    }
 }
 
 // MARK: - Setup Methods
@@ -30,7 +40,7 @@ private extension TabBarViewController {
             tag: 0
         )
         
-        let statisticView = StatisticViewController()
+        let statisticView = UINavigationController(rootViewController: StatisticViewController())
         statisticView.tabBarItem = UITabBarItem(
             title: Constants.UIString.statistic,
             image: .statistic,

@@ -26,6 +26,7 @@ final class ScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(ScheduleTableViewCell.self, forCellReuseIdentifier: ScheduleTableViewCell.reuseIdentifier)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.separatorColor = .systemGray
         tableView.backgroundColor = .ypBackground
         tableView.isScrollEnabled = false
         tableView.layer.cornerRadius = 16
