@@ -21,7 +21,7 @@ final class MainTabBarControllerSnapshotTests: XCTestCase {
         super.tearDown()
     }
     
-    func test_tabBarController_LightTheme() {
+    func testTabBarControllerLightTheme() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.overrideUserInterfaceStyle = .light
 
@@ -38,7 +38,7 @@ final class MainTabBarControllerSnapshotTests: XCTestCase {
         )
     }
 
-    func test_tabBarController_DarkTheme() {
+    func testTabBarControllerDarkTheme() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.overrideUserInterfaceStyle = .dark
 

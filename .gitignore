@@ -8,6 +8,7 @@ xcuserdata/
 Pods/
 *.xcworkspace
 *.xcscheme
+*.lock
 ## Obj-C/Swift specific
 *.hmap
 

@@ -7,9 +7,9 @@
 
 import UIKit
 
-class CustomView: UIView {
+final class CustomStatisticView: UIView {
     // MARK: - UI Components
-    private let countLabel: UILabel = {
+    private lazy var countLabel: UILabel = {
         let label = UILabel()
         label.font = .title
         label.textColor = .ypAccent
@@ -17,7 +17,7 @@ class CustomView: UIView {
         return label
     }()
     
-    private let statsNameLabel: UILabel = {
+    private lazy var statsNameLabel: UILabel = {
         let label = UILabel()
         label.font = .little
         label.textColor = .ypAccent
@@ -25,7 +25,7 @@ class CustomView: UIView {
         return label
     }()
     
-    private let gradientLayer: CAGradientLayer = {
+    private lazy var gradientLayer: CAGradientLayer = {
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [
             UIColor.typeRed.cgColor,
@@ -54,7 +54,7 @@ class CustomView: UIView {
 }
 
 // MARK: - Public Methods
-extension CustomView {
+extension CustomStatisticView {
     func updateView(count: Int, name: String) {
         countLabel.text = String(count)
         statsNameLabel.text = name
@@ -62,7 +62,7 @@ extension CustomView {
 }
 
 // MARK: - Setup Methods
-private extension CustomView {
+private extension CustomStatisticView {
     func setupUI() {
         backgroundColor = .ypBackground
         clipsToBounds = true

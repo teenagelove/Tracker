@@ -35,26 +35,26 @@ final class StatisticViewController: UIViewController {
         return stack
     }()
     
-    private lazy var bestStreakView: CustomView = {
-        let view = CustomView()
+    private lazy var bestStreakView: CustomStatisticView = {
+        let view = CustomStatisticView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private lazy var perfectDaysView: CustomView = {
-        let view = CustomView()
+    private lazy var perfectDaysView: CustomStatisticView = {
+        let view = CustomStatisticView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private lazy var completedTrackersView: CustomView = {
-        let view = CustomView()
+    private lazy var completedTrackersView: CustomStatisticView = {
+        let view = CustomStatisticView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private lazy var averageScoreView: CustomView = {
-        let view = CustomView()
+    private lazy var averageScoreView: CustomStatisticView = {
+        let view = CustomStatisticView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
