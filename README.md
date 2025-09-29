@@ -24,6 +24,11 @@
 ## 📖 Description  
 The app helps users form healthy habits and track their completion. Users can create tracker cards for habits or irregular events, organize them by category, view progress in a calendar, and track statistics for their achievements.
 
+
+<p align="center">
+  <img src="Assets/Preview.gif" alt="App Preview" width="300"/>
+</p>
+
 # Links
 
 - [Figma Design](https://www.figma.com/file/owAO4CAPTJdpM1BZU5JHv7/Tracker-(YP)?t=SZDLmkWeOPX4y6mp-0)
