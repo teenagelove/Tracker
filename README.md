@@ -29,10 +29,6 @@ The app helps users form healthy habits and track their completion. Users can cr
   <img src="Assets/Preview.gif" alt="App Preview" width="300"/>
 </p>
 
-# Links
-
-- [Figma Design](https://www.figma.com/file/owAO4CAPTJdpM1BZU5JHv7/Tracker-(YP)?t=SZDLmkWeOPX4y6mp-0)
-
 # Purpose and Goals of the Application
 
 The app helps users form healthy habits and track their completion.
